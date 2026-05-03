@@ -1,65 +1,316 @@
-import Image from "next/image";
+import Link from "next/link"
+import { MapPin, Shield, Star, Clock, ChevronRight, Check } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import { Navbar } from "@/components/shared/navbar"
+import { Footer } from "@/components/shared/footer"
+import { CEREMONIES, CITIES } from "@/lib/constants"
+import type { CeremonyType, City } from "@/types"
 
-export default function Home() {
+const FEATURED_CEREMONIES: CeremonyType[] = [
+  "GRIHA_PRAVESH",
+  "SATYANARAYAN_PUJA",
+  "NAMAKARANA",
+  "UPANAYANAM",
+  "SEEMANTHAM",
+  "ANNAPRASHANA",
+]
+
+const FEATURED_CITIES: City[] = ["CHENNAI", "BANGALORE", "HYDERABAD", "COCHIN", "AMARAVATI"]
+
+const TRUST_POINTS = [
+  { icon: Shield, title: "Aadhaar Verified", desc: "Every priest is identity-verified before onboarding" },
+  { icon: Star, title: "Family Reviews", desc: "Real reviews from families, with ceremony photos" },
+  { icon: Clock, title: "On-Time Guarantee", desc: "Priest cancellation? We find a replacement within 2 hours" },
+  { icon: MapPin, title: "Tradition Matched", desc: "Sampradaya and language matched to your family" },
+]
+
+const HOW_IT_WORKS = [
+  { step: "01", title: "Choose your ceremony", desc: "Pick from 6 ceremony types across all South Indian traditions" },
+  { step: "02", title: "Find your priest", desc: "Filter by tradition, language, rating, and availability" },
+  { step: "03", title: "Book & confirm", desc: "Pay a 30% deposit — balance paid directly to priest on the day" },
+  { step: "04", title: "Ceremony day", desc: "Priest arrives prepared with your family details. You just be present." },
+]
+
+const TESTIMONIALS = [
+  {
+    name: "Priya Subramaniam",
+    city: "Chennai",
+    ceremony: "Griha Pravesh",
+    rating: 5,
+    body: "Pandit Venkatesh arrived 15 minutes early with all the samagri. The puja was conducted beautifully in Tamil with Sanskrit shlokas. Our family was deeply moved.",
+    tradition: "Iyer (Smartha)",
+  },
+  {
+    name: "Ramesh Naidu",
+    city: "Hyderabad",
+    ceremony: "Upanayanam",
+    rating: 5,
+    body: "The entire Upanayanam was flawless. The priest took time to explain each ritual to my son in Telugu. Archanai made a complex ceremony feel effortless.",
+    tradition: "Telugu Vaidiki",
+  },
+  {
+    name: "Anitha Krishnaswamy",
+    city: "Bangalore",
+    ceremony: "Namakarana",
+    rating: 5,
+    body: "Booking was so easy. The priest received all our family details in advance — no scrambling on the day. Will definitely use Archanai again.",
+    tradition: "Iyengar (Sri Vaishnava)",
+  },
+]
+
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="flex flex-col min-h-full">
+      <Navbar />
+
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-accent/30 via-background to-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24">
+          <div className="text-center max-w-3xl mx-auto">
+            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1">
+              ✨ Now live across 5 South Indian cities
+            </Badge>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight mb-6">
+              Book a trusted priest{" "}
+              <span className="text-primary">for every ceremony</span>
+            </h1>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-2xl mx-auto">
+              Verified Hindu priests across Chennai, Bangalore, Hyderabad, Cochin and Amaravati.
+              Tradition-matched, transparent pricing, and always prepared.
+            </p>
+
+            {/* Quick search bar */}
+            <div className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mb-6">
+              <Button size="lg" className="flex-1 h-12 text-base" asChild>
+                <Link href="/browse">
+                  Find a Priest <ChevronRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" className="h-12 text-base" asChild>
+                <Link href="/priest/register">Join as Priest</Link>
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> 125+ verified priests</span>
+              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> 6 ceremony types</span>
+              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> 5 cities</span>
+              <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> Samagri included</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Decorative mandala-inspired bg element */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 h-[600px] w-[600px] rounded-full bg-accent/20 blur-3xl"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+        <div
+          aria-hidden
+          className="pointer-events-none absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 h-[400px] w-[400px] rounded-full bg-primary/10 blur-3xl"
+        />
+      </section>
+
+      {/* Ceremonies */}
+      <section className="py-20 bg-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Browse by ceremony</h2>
+            <p className="text-muted-foreground">6 ceremonies covering major life events and occasions</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {FEATURED_CEREMONIES.map((type) => {
+              const c = CEREMONIES[type]
+              return (
+                <Link
+                  key={type}
+                  href={`/browse?ceremony=${type}`}
+                  className="group flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-card p-4 text-center hover:border-primary/40 hover:shadow-sm transition-all"
+                >
+                  <span className="text-3xl">{c.emoji}</span>
+                  <span className="text-sm font-medium leading-snug group-hover:text-primary transition-colors">
+                    {c.label}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {Math.round(c.durationMin / 60)}–{Math.round(c.durationMax / 60)}h
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Cities */}
+      <section className="py-16 bg-muted/40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Available in your city</h2>
+            <p className="text-muted-foreground">Serving families across South India</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {FEATURED_CITIES.map((city) => {
+              const c = CITIES[city]
+              return (
+                <Link
+                  key={city}
+                  href={`/browse?city=${city}`}
+                  className="group flex flex-col gap-1 rounded-xl border border-border/60 bg-card p-4 hover:border-primary/40 hover:shadow-sm transition-all"
+                >
+                  <MapPin className="h-4 w-4 text-primary mb-1" />
+                  <span className="font-medium text-sm group-hover:text-primary transition-colors">{c.label}</span>
+                  <span className="text-xs text-muted-foreground">{c.state}</span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="py-20 bg-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">How Archanai works</h2>
+            <p className="text-muted-foreground">Book your priest in under 5 minutes</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {HOW_IT_WORKS.map((step) => (
+              <div key={step.step} className="flex flex-col gap-3">
+                <span className="text-4xl font-bold text-primary/20">{step.step}</span>
+                <h3 className="font-semibold">{step.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Trust */}
+      <section className="py-20 bg-accent/20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Why families trust Archanai</h2>
+            <p className="text-muted-foreground">Every ceremony is sacred. We treat it that way.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {TRUST_POINTS.map((point) => (
+              <Card key={point.title} className="border-border/60 shadow-none">
+                <CardContent className="pt-6 flex flex-col gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <point.icon className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-sm">{point.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{point.desc}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 bg-background">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Families love Archanai</h2>
+            <p className="text-muted-foreground">Real reviews from real ceremonies</p>
+          </div>
+          <div className="grid sm:grid-cols-3 gap-6">
+            {TESTIMONIALS.map((t) => (
+              <Card key={t.name} className="border-border/60 shadow-none">
+                <CardContent className="pt-6 flex flex-col gap-4">
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: t.rating }).map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                    ))}
+                  </div>
+                  <p className="text-sm leading-relaxed text-foreground/80">&ldquo;{t.body}&rdquo;</p>
+                  <div className="flex items-center gap-2 pt-1 border-t border-border/60">
+                    <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-sm font-medium text-primary">
+                      {t.name[0]}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{t.name}</p>
+                      <p className="text-xs text-muted-foreground">{t.ceremony} · {t.city}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Samagri section */}
+      <section className="py-16 bg-muted/40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <Badge variant="secondary" className="mb-4 text-xs">Samagri made easy</Badge>
+              <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-4">
+                All ritual materials, sorted
+              </h2>
+              <p className="text-muted-foreground leading-relaxed mb-6">
+                Choose how you want to handle samagri. We generate a region-specific, tradition-aware checklist for every ceremony.
+              </p>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-sm">A</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Priest-arranged</p>
+                    <p className="text-sm text-muted-foreground">Priest sources all materials, bundled into the price. You just open the door.</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="text-sm">B</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Self-arranged with checklist</p>
+                    <p className="text-sm text-muted-foreground">Get a precise samagri checklist after booking — ceremony + tradition specific. Shop at your local store.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {(["GRIHA_PRAVESH", "SATYANARAYAN_PUJA", "UPANAYANAM", "SEEMANTHAM"] as CeremonyType[]).map((type) => {
+                const c = CEREMONIES[type]
+                return (
+                  <div key={type} className="rounded-xl border border-border/60 bg-card p-4">
+                    <span className="text-2xl">{c.emoji}</span>
+                    <p className="font-medium text-sm mt-2">{c.label}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Checklist available</p>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA for priests */}
+      <section className="py-20 bg-primary text-primary-foreground">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-3">
+            Are you a priest?
+          </h2>
+          <p className="text-primary-foreground/80 mb-6 max-w-xl mx-auto leading-relaxed">
+            Join as a Founding Priest — zero commission for your first 3 months, a permanent badge on your profile, and access to hundreds of families in your city.
           </p>
+          <Button size="lg" variant="secondary" asChild>
+            <Link href="/priest/register">
+              Join Archanai as a Priest <ChevronRight className="ml-1 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
+
+      <Footer />
     </div>
-  );
+  )
 }

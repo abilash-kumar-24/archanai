@@ -1,0 +1,299 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  CONSUMER
+  PRIEST
+  ADMIN
+}
+
+enum City {
+  CHENNAI
+  BANGALORE
+  HYDERABAD
+  COCHIN
+  AMARAVATI
+}
+
+enum Tradition {
+  IYER_SMARTHA
+  IYENGAR_SRI_VAISHNAVA
+  MADHWA
+  SMARTHA_KARNATAKA
+  VAISHNAVA_KARNATAKA
+  TELUGU_NIYOGI
+  TELUGU_VAIDIKI
+  NAMBOODIRI
+  KERALA_SMARTHA
+}
+
+enum Language {
+  ENGLISH
+  TAMIL
+  KANNADA
+  TELUGU
+  MALAYALAM
+  SANSKRIT
+  HINDI
+}
+
+enum CeremonyType {
+  GRIHA_PRAVESH
+  SATYANARAYAN_PUJA
+  NAMAKARANA
+  UPANAYANAM
+  SEEMANTHAM
+  ANNAPRASHANA
+}
+
+enum SamagriOption {
+  PRIEST_ARRANGED
+  SELF_ARRANGED
+  PLATFORM_KIT
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  PRIEST_ACCEPTED
+  COMPLETED
+  CANCELLED_CONSUMER
+  CANCELLED_PRIEST
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  PENDING
+  DEPOSIT_PAID
+  COMPLETED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+// ─── Core Models ─────────────────────────────────────────────────────────────
+
+model User {
+  id         String   @id @default(cuid())
+  supabaseId String   @unique @map("supabase_id")
+  email      String   @unique
+  phone      String?  @unique
+  name       String
+  role       UserRole @default(CONSUMER)
+  avatarUrl  String?  @map("avatar_url")
+  city       City?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  priest   Priest?
+  bookings Booking[]
+  reviews  Review[]
+
+  @@map("users")
+}
+
+model Priest {
+  id          String @id @default(cuid())
+  userId      String @unique @map("user_id")
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  displayName  String    @map("display_name")
+  bio          String?
+  photoUrl     String?   @map("photo_url")
+  galleryUrls  String[]  @map("gallery_urls")
+
+  tradition     Tradition
+  languages     Language[]
+  ceremonies    CeremonyType[]
+  serviceCities City[]         @map("service_cities")
+
+  experienceYears  Int @map("experience_years")
+  ceremoniesCount  Int @default(0) @map("ceremonies_count")
+
+  priceRangeMin  Int @map("price_range_min")
+  priceRangeMax  Int @map("price_range_max")
+  travelFeePerKm Int @default(10) @map("travel_fee_per_km")
+
+  templeAffiliation  String?            @map("temple_affiliation")
+  aadhaarVerified    Boolean            @default(false) @map("aadhaar_verified")
+  verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
+  foundingPriest     Boolean            @default(false) @map("founding_priest")
+
+  isActive    Boolean @default(true) @map("is_active")
+  rating      Float   @default(0)
+  reviewCount Int     @default(0) @map("review_count")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  bookings     Booking[]
+  reviews      Review[]
+  availability PriestAvailability[]
+  blockedDates BlockedDate[]
+
+  @@map("priests")
+}
+
+model PriestAvailability {
+  id        String @id @default(cuid())
+  priestId  String @map("priest_id")
+  priest    Priest @relation(fields: [priestId], references: [id], onDelete: Cascade)
+  dayOfWeek Int    @map("day_of_week") // 0=Sun, 6=Sat
+  startTime String @map("start_time") // "06:00"
+  endTime   String @map("end_time") // "20:00"
+
+  @@map("priest_availability")
+}
+
+model BlockedDate {
+  id       String   @id @default(cuid())
+  priestId String   @map("priest_id")
+  priest   Priest   @relation(fields: [priestId], references: [id], onDelete: Cascade)
+  date     DateTime
+  reason   String?
+
+  @@map("blocked_dates")
+}
+
+model Ceremony {
+  id            String       @id @default(cuid())
+  type          CeremonyType @unique
+  name          String
+  nameTamil     String?      @map("name_tamil")
+  nameTelugu    String?      @map("name_telugu")
+  nameKannada   String?      @map("name_kannada")
+  nameMalayalam String?      @map("name_malayalam")
+  description   String
+  durationMin   Int          @map("duration_min")
+  durationMax   Int          @map("duration_max")
+  imageUrl      String?      @map("image_url")
+  isActive      Boolean      @default(true) @map("is_active")
+
+  bookings     Booking[]
+  samagriLists SamagriList[]
+
+  @@map("ceremonies")
+}
+
+model SamagriList {
+  id         String    @id @default(cuid())
+  ceremonyId String    @map("ceremony_id")
+  ceremony   Ceremony  @relation(fields: [ceremonyId], references: [id])
+  tradition  Tradition?
+  city       City?
+  items      SamagriItem[]
+
+  @@map("samagri_lists")
+}
+
+model SamagriItem {
+  id            String      @id @default(cuid())
+  samagriListId String      @map("samagri_list_id")
+  samagriList   SamagriList @relation(fields: [samagriListId], references: [id], onDelete: Cascade)
+  name          String
+  nameTamil     String?     @map("name_tamil")
+  nameTelugu    String?     @map("name_telugu")
+  quantity      String
+  notes         String?
+  isOptional    Boolean     @default(false) @map("is_optional")
+
+  @@map("samagri_items")
+}
+
+model Booking {
+  id         String @id @default(cuid())
+  bookingRef String @unique @map("booking_ref")
+
+  consumerId String  @map("consumer_id")
+  consumer   User    @relation(fields: [consumerId], references: [id])
+  priestId   String  @map("priest_id")
+  priest     Priest  @relation(fields: [priestId], references: [id])
+  ceremonyId String  @map("ceremony_id")
+  ceremony   Ceremony @relation(fields: [ceremonyId], references: [id])
+
+  status        BookingStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  scheduledDate DateTime @map("scheduled_date")
+  scheduledTime String   @map("scheduled_time")
+  durationHours Float    @map("duration_hours")
+
+  addressLine1  String  @map("address_line1")
+  addressLine2  String? @map("address_line2")
+  city          City
+  pincode       String
+  googleMapsUrl String? @map("google_maps_url")
+
+  samagriOption SamagriOption @map("samagri_option")
+
+  // Sensitive family details stored as JSON
+  familyDetails Json @map("family_details")
+
+  basePrice    Int @map("base_price")
+  travelFee    Int @default(0) @map("travel_fee")
+  samagriPrice Int @default(0) @map("samagri_price")
+  platformFee  Int @map("platform_fee")
+  totalAmount  Int @map("total_amount")
+  depositAmount Int @map("deposit_amount")
+
+  razorpayOrderId   String? @map("razorpay_order_id")
+  razorpayPaymentId String? @map("razorpay_payment_id")
+
+  specialRequests    String? @map("special_requests")
+  priestNotes        String? @map("priest_notes")
+  cancellationReason String? @map("cancellation_reason")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  confirmedAt DateTime? @map("confirmed_at")
+  completedAt DateTime? @map("completed_at")
+
+  review Review?
+
+  @@map("bookings")
+}
+
+model Review {
+  id         String  @id @default(cuid())
+  bookingId  String  @unique @map("booking_id")
+  booking    Booking @relation(fields: [bookingId], references: [id])
+  priestId   String  @map("priest_id")
+  priest     Priest  @relation(fields: [priestId], references: [id])
+  consumerId String  @map("consumer_id")
+  consumer   User    @relation(fields: [consumerId], references: [id])
+
+  rating     Int
+  title      String?
+  body       String?
+  photoUrls  String[] @map("photo_urls")
+  isVerified Boolean  @default(false) @map("is_verified")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("reviews")
+}
+
+model Notification {
+  id     String  @id @default(cuid())
+  userId String  @map("user_id")
+  type   String
+  title  String
+  body   String
+  data   Json?
+  isRead Boolean @default(false) @map("is_read")
+  sentAt DateTime @default(now()) @map("sent_at")
+
+  @@map("notifications")
+}
