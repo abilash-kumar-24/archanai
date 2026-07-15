@@ -1,13 +1,13 @@
 import { format, startOfMonth } from "date-fns"
-import { Users, CalendarCheck, TrendingUp, Clock, CheckCircle2, XCircle } from "lucide-react"
+import { Users, CalendarCheck, TrendingUp, Clock } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { prisma } from "@/lib/prisma"
 import { CEREMONIES, CITIES, TRADITIONS } from "@/lib/constants"
 import { formatINR } from "@/lib/utils/booking"
+import { PriestActionButtons } from "@/components/admin/priest-action-buttons"
 import type { CeremonyType, City } from "@/types"
 
 export const metadata = { title: "Admin — Archanai" }
@@ -135,14 +135,7 @@ export default async function AdminDashboard() {
                             </span>
                           ))}
                         </div>
-                        <div className="flex gap-2 mt-3">
-                          <Button size="sm" className="h-7 text-xs gap-1">
-                            <CheckCircle2 className="h-3.5 w-3.5" /> Approve
-                          </Button>
-                          <Button size="sm" variant="ghost" className="h-7 text-xs gap-1 text-destructive hover:text-destructive">
-                            <XCircle className="h-3.5 w-3.5" /> Reject
-                          </Button>
-                        </div>
+                        <PriestActionButtons priestId={p.id} />
                       </div>
                     </div>
                   </CardContent>

@@ -51,6 +51,23 @@ const TIME_SLOTS = [
   "16:00", "16:30", "17:00", "17:30", "18:00",
 ]
 
+// 30% of min price, minimum ₹500, rounded to nearest ₹100
+function calcDeposit(priceRangeMin: number) {
+  return Math.max(500, Math.round((priceRangeMin * 0.3) / 100) * 100)
+}
+
+async function loadRazorpayScript(): Promise<boolean> {
+  if (typeof window === "undefined") return false
+  if ((window as unknown as { Razorpay?: unknown }).Razorpay) return true
+  return new Promise((resolve) => {
+    const script = document.createElement("script")
+    script.src = "https://checkout.razorpay.com/v1/checkout.js"
+    script.onload = () => resolve(true)
+    script.onerror = () => resolve(false)
+    document.body.appendChild(script)
+  })
+}
+
 export interface BookingPriest {
   id:            string
   displayName:   string
@@ -87,6 +104,8 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
     defaultValues: { addressLine1: "" },
   })
 
+  const deposit = calcDeposit(priest.priceRangeMin)
+
   const canAdvance = () => {
     if (step === 0) return !!selectedCeremony
     if (step === 1) return !!selectedDate && !!selectedTime && !!selectedCity
@@ -99,6 +118,55 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
     if (step === 2) { const ok = await familyForm.trigger(); if (!ok) return }
     if (step === 1) { const ok = await locationForm.trigger(); if (!ok) return }
     if (step < STEPS.length - 1) setStep((s) => s + 1)
+  }
+
+  const initiatePayment = async (bookingId: string, ref: string) => {
+    try {
+      const loaded = await loadRazorpayScript()
+      if (!loaded) { setBookingRef(ref); return }
+
+      const orderRes = await fetch("/api/payments/create-order", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ bookingId }),
+      })
+
+      if (!orderRes.ok) {
+        // Razorpay not configured yet — show booking confirmed anyway
+        setBookingRef(ref)
+        return
+      }
+
+      const { orderId, amount, keyId } = await orderRes.json()
+
+      type RzpResponse = { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }
+      type RzpClass = new (options: unknown) => { open(): void }
+      const RazorpayClass = (window as unknown as { Razorpay: RzpClass }).Razorpay
+
+      const rzp = new RazorpayClass({
+        key:         keyId,
+        amount:      amount * 100,
+        currency:    "INR",
+        name:        "Archanai",
+        description: `Booking Deposit — ${selectedCeremony ? CEREMONIES[selectedCeremony]?.label : "Ceremony"}`,
+        order_id:    orderId,
+        handler: async (response: RzpResponse) => {
+          await fetch("/api/payments/verify", {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ bookingId, ...response }),
+          }).catch(console.error)
+          setBookingRef(ref)
+        },
+        prefill: { name: familyForm.getValues("primaryName") },
+        theme:   { color: "#B45309" },
+        modal:   { ondismiss: () => setBookingRef(ref) },
+      })
+      rzp.open()
+    } catch {
+      // Fallback — show success even if payment initiation fails
+      setBookingRef(ref)
+    }
   }
 
   const handleSubmit = async () => {
@@ -133,8 +201,9 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
         return
       }
 
-      const { bookingRef: ref } = await res.json()
-      setBookingRef(ref)
+      const { bookingId, bookingRef: ref } = await res.json()
+      setIsSubmitting(false)
+      await initiatePayment(bookingId, ref)
     } catch {
       toast.error("Something went wrong. Please try again.")
     } finally {
@@ -155,8 +224,8 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
             <span className="font-semibold font-mono text-foreground">{bookingRef}</span>
           </p>
           <p className="text-sm text-muted-foreground">
-            {priest.displayName} has been notified via WhatsApp and will confirm within a few hours.
-            You&apos;ll receive a WhatsApp message once accepted.
+            {priest.displayName} has been notified and will confirm within a few hours.
+            You&apos;ll receive an email confirmation once accepted.
           </p>
           <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
             <Button variant="outline" onClick={() => { setStep(0); setBookingRef("") }}>
@@ -454,7 +523,7 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                   {
                     value: "SELF_ARRANGED" as const,
                     label: "I'll arrange (with checklist)",
-                    desc:  "We'll send you a precise, tradition-specific samagri checklist after booking. Buy from your local store.",
+                    desc:  "We'll send you a precise, tradition-specific samagri checklist via email after booking. Buy from your local store.",
                     badge: "Most popular",
                   },
                 ]).map((opt) => (
@@ -486,7 +555,7 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                   requires approximately 15–25 items depending on your tradition.
                   {samagriOption === "SELF_ARRANGED" && (
                     <span className="block mt-1 text-primary text-xs">
-                      ✓ A detailed checklist will be sent to your WhatsApp after the priest confirms.
+                      ✓ A detailed samagri checklist will be sent to your email after the priest confirms.
                     </span>
                   )}
                 </div>
@@ -530,22 +599,24 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                 </div>
               </div>
 
-              <div className="rounded-xl bg-accent/30 p-4 text-sm">
-                <p className="font-medium mb-1">Contribution</p>
+              <div className="rounded-xl bg-accent/30 p-4 text-sm space-y-2">
+                <p className="font-medium">Contribution &amp; Deposit</p>
                 <p className="text-muted-foreground">
                   This priest&apos;s typical range is{" "}
                   <span className="font-semibold text-foreground">
                     {formatINR(priest.priceRangeMin)} – {formatINR(priest.priceRangeMax)}
                   </span>
-                  . This is paid directly to the priest on ceremony day — no payment is collected by Archanai.
+                  . A refundable deposit of{" "}
+                  <span className="font-semibold text-foreground">{formatINR(deposit)}</span>
+                  {" "}is collected now to confirm your slot. The remaining amount is settled directly with the priest on ceremony day.
                 </p>
               </div>
 
               <Button className="w-full" size="lg" onClick={handleSubmit} disabled={isSubmitting}>
-                {isSubmitting ? "Sending request…" : "Confirm Booking Request 🙏"}
+                {isSubmitting ? "Creating booking…" : `Pay Deposit ${formatINR(deposit)} & Confirm 🙏`}
               </Button>
               <p className="text-xs text-center text-muted-foreground">
-                The priest will confirm via WhatsApp · Free cancellation up to 7 days before ceremony
+                The priest will confirm via email · Free cancellation up to 7 days before ceremony
               </p>
             </div>
           )}

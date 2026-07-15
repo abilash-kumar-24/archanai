@@ -83,13 +83,13 @@ export async function POST(req: NextRequest) {
         samagriOption:   data.samagriOption as SamagriOption,
         familyDetails:   data.familyDetails,
         specialRequests: data.specialRequests,
-        // Contribution range stored for priest reference — no payment taken
         basePrice:    priest.priceRangeMin,
         travelFee:    0,
         samagriPrice: data.samagriOption === "PRIEST_ARRANGED" ? 500 : 0,
         platformFee:  0,
         totalAmount:  priest.priceRangeMin,
-        depositAmount: 0,
+        // 30% deposit, minimum ₹500, rounded to nearest ₹100
+        depositAmount: Math.max(500, Math.round((priest.priceRangeMin * 0.3) / 100) * 100),
       },
     })
 

@@ -29,4 +29,8 @@ export const env = {
   resendApiKey:       process.env.RESEND_API_KEY!,
   fromEmail:          process.env.FROM_EMAIL ?? "Archanai <noreply@archanai.in>",
   appUrl:             process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  // Razorpay — optional at startup; payment routes will fail if unset
+  razorpayKeyId:        process.env.RAZORPAY_KEY_ID,
+  razorpayKeySecret:    process.env.RAZORPAY_KEY_SECRET,
+  razorpayWebhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET,
 } as const
