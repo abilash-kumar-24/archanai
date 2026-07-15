@@ -1,6 +1,9 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "@/components/ui/sonner"
+import { SITE_URL } from "@/lib/site-url"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -14,6 +17,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Archanai — Book Trusted Priests Online",
     template: "%s | Archanai",
@@ -34,6 +38,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
         <Toaster richColors position="top-right" />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )

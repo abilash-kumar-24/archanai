@@ -129,3 +129,15 @@
     @apply font-sans;
   }
 }
+
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(3%, -4%) scale(1.05); }
+  66% { transform: translate(-3%, 3%) scale(0.97); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-blob-drift {
+    animation: blob-drift 18s ease-in-out infinite;
+  }
+}

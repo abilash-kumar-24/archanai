@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Navbar } from "@/components/shared/navbar"
 import { Footer } from "@/components/shared/footer"
+import { Reveal } from "@/components/shared/reveal"
 import { CEREMONIES, CITIES } from "@/lib/constants"
 import type { CeremonyType, City } from "@/types"
 
@@ -68,7 +69,7 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-accent/30 via-background to-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24">
-          <div className="text-center max-w-3xl mx-auto">
+          <Reveal className="text-center max-w-3xl mx-auto">
             <Badge variant="secondary" className="mb-4 text-xs px-3 py-1">
               ✨ Now live across 5 South Indian cities
             </Badge>
@@ -99,44 +100,46 @@ export default function HomePage() {
               <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> 5 cities</span>
               <span className="flex items-center gap-1"><Check className="h-3 w-3 text-primary" /> Samagri included</span>
             </div>
-          </div>
+          </Reveal>
         </div>
 
         {/* Decorative mandala-inspired bg element */}
         <div
           aria-hidden
-          className="pointer-events-none absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 h-[600px] w-[600px] rounded-full bg-accent/20 blur-3xl"
+          className="animate-blob-drift pointer-events-none absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 h-[600px] w-[600px] rounded-full bg-accent/20 blur-3xl"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 h-[400px] w-[400px] rounded-full bg-primary/10 blur-3xl"
+          style={{ animationDelay: "-9s" }}
+          className="animate-blob-drift pointer-events-none absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 h-[400px] w-[400px] rounded-full bg-primary/10 blur-3xl"
         />
       </section>
 
       {/* Ceremonies */}
       <section className="py-20 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10">
+          <Reveal className="mb-10">
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Browse by ceremony</h2>
             <p className="text-muted-foreground">6 ceremonies covering major life events and occasions</p>
-          </div>
+          </Reveal>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {FEATURED_CEREMONIES.map((type) => {
+            {FEATURED_CEREMONIES.map((type, i) => {
               const c = CEREMONIES[type]
               return (
-                <Link
-                  key={type}
-                  href={`/browse?ceremony=${type}`}
-                  className="group flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-card p-4 text-center hover:border-primary/40 hover:shadow-sm transition-all"
-                >
-                  <span className="text-3xl">{c.emoji}</span>
-                  <span className="text-sm font-medium leading-snug group-hover:text-primary transition-colors">
-                    {c.label}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {Math.round(c.durationMin / 60)}–{Math.round(c.durationMax / 60)}h
-                  </span>
-                </Link>
+                <Reveal key={type} delay={i * 60}>
+                  <Link
+                    href={`/browse?ceremony=${type}`}
+                    className="group flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-card p-4 text-center hover:border-primary/40 hover:shadow-md hover:-translate-y-1 transition-all"
+                  >
+                    <span className="text-3xl">{c.emoji}</span>
+                    <span className="text-sm font-medium leading-snug group-hover:text-primary transition-colors">
+                      {c.label}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {Math.round(c.durationMin / 60)}–{Math.round(c.durationMax / 60)}h
+                    </span>
+                  </Link>
+                </Reveal>
               )
             })}
           </div>
@@ -146,23 +149,24 @@ export default function HomePage() {
       {/* Cities */}
       <section className="py-16 bg-muted/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
+          <Reveal className="mb-8">
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Available in your city</h2>
             <p className="text-muted-foreground">Serving families across South India</p>
-          </div>
+          </Reveal>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {FEATURED_CITIES.map((city) => {
+            {FEATURED_CITIES.map((city, i) => {
               const c = CITIES[city]
               return (
-                <Link
-                  key={city}
-                  href={`/browse?city=${city}`}
-                  className="group flex flex-col gap-1 rounded-xl border border-border/60 bg-card p-4 hover:border-primary/40 hover:shadow-sm transition-all"
-                >
-                  <MapPin className="h-4 w-4 text-primary mb-1" />
-                  <span className="font-medium text-sm group-hover:text-primary transition-colors">{c.label}</span>
-                  <span className="text-xs text-muted-foreground">{c.state}</span>
-                </Link>
+                <Reveal key={city} delay={i * 60}>
+                  <Link
+                    href={`/browse?city=${city}`}
+                    className="group flex flex-col gap-1 rounded-xl border border-border/60 bg-card p-4 hover:border-primary/40 hover:shadow-md hover:-translate-y-1 transition-all"
+                  >
+                    <MapPin className="h-4 w-4 text-primary mb-1" />
+                    <span className="font-medium text-sm group-hover:text-primary transition-colors">{c.label}</span>
+                    <span className="text-xs text-muted-foreground">{c.state}</span>
+                  </Link>
+                </Reveal>
               )
             })}
           </div>
@@ -172,17 +176,17 @@ export default function HomePage() {
       {/* How it works */}
       <section className="py-20 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <Reveal className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">How Archanai works</h2>
             <p className="text-muted-foreground">Book your priest in under 5 minutes</p>
-          </div>
+          </Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {HOW_IT_WORKS.map((step) => (
-              <div key={step.step} className="flex flex-col gap-3">
+            {HOW_IT_WORKS.map((step, i) => (
+              <Reveal key={step.step} delay={i * 80} className="flex flex-col gap-3">
                 <span className="text-4xl font-bold text-primary/20">{step.step}</span>
                 <h3 className="font-semibold">{step.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -191,21 +195,23 @@ export default function HomePage() {
       {/* Trust */}
       <section className="py-20 bg-accent/20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <Reveal className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Why families trust Archanai</h2>
             <p className="text-muted-foreground">Every ceremony is sacred. We treat it that way.</p>
-          </div>
+          </Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {TRUST_POINTS.map((point) => (
-              <Card key={point.title} className="border-border/60 shadow-none">
-                <CardContent className="pt-6 flex flex-col gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <point.icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-sm">{point.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{point.desc}</p>
-                </CardContent>
-              </Card>
+            {TRUST_POINTS.map((point, i) => (
+              <Reveal key={point.title} delay={i * 80}>
+                <Card className="border-border/60 shadow-none hover:shadow-md hover:-translate-y-1 transition-all">
+                  <CardContent className="pt-6 flex flex-col gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <point.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-sm">{point.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{point.desc}</p>
+                  </CardContent>
+                </Card>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -214,31 +220,33 @@ export default function HomePage() {
       {/* Testimonials */}
       <section className="py-20 bg-background">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <Reveal className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Families love Archanai</h2>
             <p className="text-muted-foreground">Real reviews from real ceremonies</p>
-          </div>
+          </Reveal>
           <div className="grid sm:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t) => (
-              <Card key={t.name} className="border-border/60 shadow-none">
-                <CardContent className="pt-6 flex flex-col gap-4">
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: t.rating }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-                    ))}
-                  </div>
-                  <p className="text-sm leading-relaxed text-foreground/80">&ldquo;{t.body}&rdquo;</p>
-                  <div className="flex items-center gap-2 pt-1 border-t border-border/60">
-                    <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-sm font-medium text-primary">
-                      {t.name[0]}
+            {TESTIMONIALS.map((t, i) => (
+              <Reveal key={t.name} delay={i * 100}>
+                <Card className="border-border/60 shadow-none hover:shadow-md hover:-translate-y-1 transition-all">
+                  <CardContent className="pt-6 flex flex-col gap-4">
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: t.rating }).map((_, j) => (
+                        <Star key={j} className="h-4 w-4 fill-primary text-primary" />
+                      ))}
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">{t.name}</p>
-                      <p className="text-xs text-muted-foreground">{t.ceremony} · {t.city}</p>
+                    <p className="text-sm leading-relaxed text-foreground/80">&ldquo;{t.body}&rdquo;</p>
+                    <div className="flex items-center gap-2 pt-1 border-t border-border/60">
+                      <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-sm font-medium text-primary">
+                        {t.name[0]}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{t.name}</p>
+                        <p className="text-xs text-muted-foreground">{t.ceremony} · {t.city}</p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -248,7 +256,7 @@ export default function HomePage() {
       <section className="py-16 bg-muted/40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <Reveal>
               <Badge variant="secondary" className="mb-4 text-xs">Samagri made easy</Badge>
               <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-4">
                 All ritual materials, sorted
@@ -276,26 +284,26 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+            </Reveal>
+            <Reveal delay={150} className="grid grid-cols-2 gap-4">
               {(["GRIHA_PRAVESH", "SATYANARAYAN_PUJA", "UPANAYANAM", "SEEMANTHAM"] as CeremonyType[]).map((type) => {
                 const c = CEREMONIES[type]
                 return (
-                  <div key={type} className="rounded-xl border border-border/60 bg-card p-4">
+                  <div key={type} className="rounded-xl border border-border/60 bg-card p-4 hover:shadow-md hover:-translate-y-1 transition-all">
                     <span className="text-2xl">{c.emoji}</span>
                     <p className="font-medium text-sm mt-2">{c.label}</p>
                     <p className="text-xs text-muted-foreground mt-1">Checklist available</p>
                   </div>
                 )
               })}
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
 
       {/* CTA for priests */}
       <section className="py-20 bg-primary text-primary-foreground">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+        <Reveal className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-3">
             Are you a priest?
           </h2>
@@ -307,7 +315,7 @@ export default function HomePage() {
               Join Archanai as a Priest <ChevronRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
-        </div>
+        </Reveal>
       </section>
 
       <Footer />
