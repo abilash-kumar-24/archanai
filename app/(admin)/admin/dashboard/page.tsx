@@ -104,7 +104,7 @@ export default async function AdminDashboard() {
             {pendingPriestList.length === 0 ? (
               <p className="text-sm text-muted-foreground">No priests pending verification.</p>
             ) : (
-              pendingPriestList.map((p) => (
+              pendingPriestList.map((p: (typeof pendingPriestList)[number]) => (
                 <Card key={p.id} className="border-border/60 shadow-none">
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
