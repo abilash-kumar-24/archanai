@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Navbar } from "@/components/shared/navbar"
 import { Footer } from "@/components/shared/footer"
 import { Reveal } from "@/components/shared/reveal"
+import { Ornament } from "@/components/shared/ornament"
 import { CEREMONIES, CITIES } from "@/lib/constants"
 import type { CeremonyType, City } from "@/types"
 
@@ -195,6 +196,7 @@ export default function HomePage() {
       {/* Trust */}
       <section className="py-20 bg-accent/20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Ornament className="mb-8" />
           <Reveal className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Why families trust Archanai</h2>
             <p className="text-muted-foreground">Every ceremony is sacred. We treat it that way.</p>

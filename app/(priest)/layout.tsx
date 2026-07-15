@@ -22,6 +22,7 @@ export default async function PriestLayout({ children }: { children: React.React
     <div className="flex min-h-screen bg-muted/30">
       {/* Sidebar */}
       <aside className="hidden lg:flex flex-col w-60 shrink-0 bg-sidebar border-r border-sidebar-border">
+        <div aria-hidden className="h-[3px] w-full bg-gradient-to-r from-primary via-accent to-primary" />
         <div className="h-16 flex items-center px-5 gap-2 border-b border-sidebar-border">
           <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
             <Flame className="h-3.5 w-3.5 text-primary-foreground" />

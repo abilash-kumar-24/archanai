@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Shield, Star, Clock, MapPin, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Ornament } from "@/components/shared/ornament"
 
 export const metadata = {
   title: "About Archanai",
@@ -45,6 +46,7 @@ export default function AboutPage() {
             Archanai connects Hindu families across South India with verified, tradition-matched priests
             — making every ceremony as meaningful as it should be.
           </p>
+          <Ornament className="mt-8" />
         </div>
       </section>
 
