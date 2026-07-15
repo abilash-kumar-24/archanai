@@ -110,7 +110,7 @@ export default async function AdminDashboard() {
                     <div className="flex items-start gap-4">
                       <Avatar className="h-12 w-12 rounded-xl">
                         <AvatarFallback className="rounded-xl bg-accent text-primary font-semibold">
-                          {p.displayName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()}
+                          {p.displayName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
