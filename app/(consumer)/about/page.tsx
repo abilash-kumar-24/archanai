@@ -36,8 +36,9 @@ export default function AboutPage() {
   return (
     <div className="flex-1 bg-background">
       {/* Hero */}
-      <section className="bg-accent/20 py-20 px-4">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="relative overflow-hidden bg-accent/20 py-20 px-4">
+        <div aria-hidden className="pattern-kolam pointer-events-none absolute inset-0 text-primary" />
+        <div className="relative max-w-3xl mx-auto text-center">
           <span className="text-5xl block mb-6">🪔</span>
           <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight mb-4">
             We exist to make sacred ceremonies simple

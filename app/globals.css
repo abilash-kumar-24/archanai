@@ -49,39 +49,39 @@
 }
 
 :root {
-  /* Archanai brand — saffron, gold, ivory */
-  --background: oklch(0.99 0.004 80);
-  --foreground: oklch(0.13 0.02 55);
+  /* Archanai brand — vermilion, turmeric gold, sandalwood */
+  --background: oklch(0.98 0.014 65);
+  --foreground: oklch(0.18 0.035 35);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.13 0.02 55);
+  --card-foreground: oklch(0.18 0.035 35);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.13 0.02 55);
-  --primary: oklch(0.55 0.19 47);
+  --popover-foreground: oklch(0.18 0.035 35);
+  --primary: oklch(0.5 0.2 33);
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.015 75);
-  --secondary-foreground: oklch(0.2 0.03 55);
-  --muted: oklch(0.96 0.008 75);
-  --muted-foreground: oklch(0.5 0.02 60);
-  --accent: oklch(0.91 0.07 75);
-  --accent-foreground: oklch(0.2 0.06 55);
+  --secondary: oklch(0.94 0.035 70);
+  --secondary-foreground: oklch(0.22 0.04 40);
+  --muted: oklch(0.95 0.018 65);
+  --muted-foreground: oklch(0.46 0.035 45);
+  --accent: oklch(0.8 0.15 78);
+  --accent-foreground: oklch(0.22 0.07 40);
   --destructive: oklch(0.55 0.22 25);
-  --border: oklch(0.91 0.018 75);
-  --input: oklch(0.91 0.018 75);
-  --ring: oklch(0.55 0.19 47);
-  --chart-1: oklch(0.55 0.19 47);
-  --chart-2: oklch(0.65 0.15 80);
+  --border: oklch(0.87 0.03 60);
+  --input: oklch(0.87 0.03 60);
+  --ring: oklch(0.5 0.2 33);
+  --chart-1: oklch(0.5 0.2 33);
+  --chart-2: oklch(0.68 0.16 80);
   --chart-3: oklch(0.72 0.12 140);
-  --chart-4: oklch(0.60 0.14 200);
-  --chart-5: oklch(0.50 0.17 300);
+  --chart-4: oklch(0.6 0.14 200);
+  --chart-5: oklch(0.5 0.17 300);
   --radius: 0.75rem;
-  --sidebar: oklch(0.98 0.004 75);
-  --sidebar-foreground: oklch(0.13 0.02 55);
-  --sidebar-primary: oklch(0.55 0.19 47);
+  --sidebar: oklch(0.97 0.014 65);
+  --sidebar-foreground: oklch(0.18 0.035 35);
+  --sidebar-primary: oklch(0.5 0.2 33);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.94 0.04 75);
-  --sidebar-accent-foreground: oklch(0.2 0.04 55);
-  --sidebar-border: oklch(0.91 0.018 75);
-  --sidebar-ring: oklch(0.55 0.19 47);
+  --sidebar-accent: oklch(0.9 0.06 75);
+  --sidebar-accent-foreground: oklch(0.22 0.06 40);
+  --sidebar-border: oklch(0.87 0.03 60);
+  --sidebar-ring: oklch(0.5 0.2 33);
 }
 
 .dark {
@@ -131,6 +131,12 @@
   h1, h2, h3, h4 {
     @apply font-heading;
   }
+}
+
+.pattern-kolam {
+  background-image: radial-gradient(circle at 1px 1px, currentColor 1.5px, transparent 0);
+  background-size: 26px 26px;
+  opacity: 0.1;
 }
 
 @keyframes blob-drift {

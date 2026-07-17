@@ -69,6 +69,7 @@ export default function HomePage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-accent/30 via-background to-background">
+        <div aria-hidden className="pattern-kolam pointer-events-none absolute inset-0 text-primary" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-24">
           <Reveal className="text-center max-w-3xl mx-auto">
             <Badge variant="secondary" className="mb-4 text-xs px-3 py-1">
@@ -304,8 +305,9 @@ export default function HomePage() {
       </section>
 
       {/* CTA for priests */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <Reveal className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative overflow-hidden py-20 bg-primary text-primary-foreground">
+        <div aria-hidden className="pattern-kolam pointer-events-none absolute inset-0 text-primary-foreground" style={{ opacity: 0.12 }} />
+        <Reveal className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-3">
             Are you a priest?
           </h2>
