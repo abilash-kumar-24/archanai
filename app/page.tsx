@@ -115,6 +115,9 @@ export default function HomePage() {
           style={{ animationDelay: "-9s" }}
           className="animate-blob-drift pointer-events-none absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 h-[400px] w-[400px] rounded-full bg-primary/10 blur-3xl"
         />
+
+        {/* Temple-skyline silhouette */}
+        <div aria-hidden className="arch-row absolute bottom-0 left-0 opacity-25" style={{ "--arch-color": "var(--primary)" } as React.CSSProperties} />
       </section>
 
       {/* Ceremonies */}
@@ -195,8 +198,9 @@ export default function HomePage() {
       </section>
 
       {/* Trust */}
-      <section className="py-20 bg-accent/20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden py-20 bg-accent/40">
+        <div aria-hidden className="pattern-kolam pointer-events-none absolute inset-0 text-primary" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Ornament className="mb-8" />
           <Reveal className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Why families trust Archanai</h2>
@@ -207,8 +211,8 @@ export default function HomePage() {
               <Reveal key={point.title} delay={i * 80}>
                 <Card className="border-border/60 shadow-none hover:shadow-md hover:-translate-y-1 transition-all">
                   <CardContent className="pt-6 flex flex-col gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <point.icon className="h-5 w-5 text-primary" />
+                    <div className="h-11 w-11 rounded-full bg-primary ring-2 ring-accent flex items-center justify-center">
+                      <point.icon className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <h3 className="font-semibold text-sm">{point.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{point.desc}</p>
@@ -320,6 +324,7 @@ export default function HomePage() {
             </Link>
           </Button>
         </Reveal>
+        <div aria-hidden className="arch-row absolute top-0 left-0 rotate-180 opacity-30" style={{ "--arch-color": "var(--primary-foreground)" } as React.CSSProperties} />
       </section>
 
       <Footer />

@@ -134,9 +134,15 @@
 }
 
 .pattern-kolam {
-  background-image: radial-gradient(circle at 1px 1px, currentColor 1.5px, transparent 0);
-  background-size: 26px 26px;
-  opacity: 0.1;
+  background-image: radial-gradient(circle at 1px 1px, currentColor 2px, transparent 0);
+  background-size: 22px 22px;
+  opacity: 0.22;
+}
+
+.arch-row {
+  height: 26px;
+  width: 100%;
+  background: radial-gradient(circle at 13px 26px, var(--arch-color, var(--primary)) 13px, transparent 13.5px) 0 0 / 26px 26px;
 }
 
 @keyframes blob-drift {
