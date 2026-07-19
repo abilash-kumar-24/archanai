@@ -113,7 +113,7 @@ export default function PriestRegisterPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+      <div className="flex items-center justify-center bg-muted/30 px-4 py-24">
         <div className="max-w-md w-full text-center space-y-4">
           <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
             <Check className="h-8 w-8 text-primary" />
@@ -133,7 +133,7 @@ export default function PriestRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30 py-12 px-4">
+    <div className="bg-muted/30 py-12 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
