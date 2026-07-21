@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Stamp } from "@/components/shared/stamp"
+import { FlameBadge } from "@/components/shared/flame-badge"
 import { TRADITIONS, LANGUAGES, CEREMONIES, CITIES } from "@/lib/constants"
 import { formatINR } from "@/lib/utils/booking"
 import { prisma } from "@/lib/prisma"
@@ -85,15 +85,15 @@ export default async function PriestProfilePage({
             {/* Profile header */}
             <div className="flex gap-5 items-start">
               <div className="relative shrink-0">
-                <Avatar className="h-24 w-24 rounded-none border border-border">
+                <Avatar className="h-24 w-24 rounded-2xl">
                   <AvatarImage src={priest.photoUrl ?? ""} />
-                  <AvatarFallback className="rounded-none bg-secondary text-primary font-heading font-bold text-2xl">
+                  <AvatarFallback className="rounded-2xl bg-secondary text-primary font-heading font-bold text-2xl">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
                 {priest.aadhaarVerified && (
-                  <div className="absolute -bottom-1.5 -right-1.5 h-6 w-6 rounded-full bg-card border-2 border-primary flex items-center justify-center">
-                    <Shield className="h-3 w-3 text-primary" />
+                  <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
+                    <Shield className="h-3.5 w-3.5 text-primary-foreground" />
                   </div>
                 )}
               </div>
@@ -102,7 +102,7 @@ export default async function PriestProfilePage({
                 <div className="flex items-start gap-2 flex-wrap">
                   <h1 className="text-xl font-heading font-semibold">{priest.displayName}</h1>
                   {priest.foundingPriest && (
-                    <Stamp className="text-[10px]">Founding Priest</Stamp>
+                    <FlameBadge className="text-[10px]">Founding Priest</FlameBadge>
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground mt-0.5">
@@ -147,7 +147,7 @@ export default async function PriestProfilePage({
                 {(priest.ceremonies as CeremonyType[]).map((c) => {
                   const ceremony = CEREMONIES[c]
                   return (
-                    <div key={c} className="flex items-center gap-3 border border-border p-3">
+                    <div key={c} className="flex items-center gap-3 rounded-lg border border-border p-3">
                       <span className="text-2xl">{ceremony.emoji}</span>
                       <div>
                         <p className="text-sm font-medium">{ceremony.label}</p>
@@ -168,7 +168,7 @@ export default async function PriestProfilePage({
               <h2 className="font-heading font-semibold mb-3">Languages</h2>
               <div className="flex flex-wrap gap-2">
                 {(priest.languages as Language[]).map((l) => (
-                  <Badge key={l} variant="secondary" className="text-sm rounded-none">
+                  <Badge key={l} variant="secondary" className="text-sm">
                     {LANGUAGES[l]}
                   </Badge>
                 ))}
@@ -210,10 +210,10 @@ export default async function PriestProfilePage({
               ) : (
                 <div className="space-y-4">
                   {reviews.map((review) => (
-                    <div key={review.id} className="border border-border p-4">
+                    <div key={review.id} className="rounded-lg border border-border p-4">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 border-2 border-primary flex items-center justify-center text-xs font-heading font-medium text-primary">
+                          <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-xs font-heading font-medium text-primary">
                             {review.consumer.name[0]}
                           </div>
                           <div>
@@ -280,11 +280,11 @@ export default async function PriestProfilePage({
                   <Separator />
 
                   <div className="grid grid-cols-2 gap-3 text-center">
-                    <div className="border border-border p-3">
+                    <div className="rounded-lg border border-border p-3">
                       <p className="font-mono tabular font-semibold text-lg">{priest.ceremoniesCount}+</p>
                       <p className="text-xs text-muted-foreground">Ceremonies</p>
                     </div>
-                    <div className="border border-border p-3">
+                    <div className="rounded-lg border border-border p-3">
                       <p className="font-mono tabular font-semibold text-lg">{priest.experienceYears}yr</p>
                       <p className="text-xs text-muted-foreground">Experience</p>
                     </div>

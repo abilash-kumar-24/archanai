@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Shield, Star, Clock, MapPin, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Divider } from "@/components/shared/divider"
+import { Flame } from "@/components/shared/flame"
 
 export const metadata = {
   title: "About Archanai",
@@ -36,27 +36,23 @@ export default function AboutPage() {
   return (
     <div className="flex-1 bg-background">
       {/* Hero */}
-      <section className="relative bg-secondary/60 py-20 px-4">
-        <div aria-hidden className="paper-grain pointer-events-none absolute inset-0" />
-        <div className="relative max-w-3xl mx-auto text-center">
-          <p className="font-mono tabular text-xs tracking-[0.2em] uppercase text-muted-foreground mb-5">
-            Archanai · About the register
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
+      <section className="dusk-section py-20 px-4">
+        <div className="max-w-3xl mx-auto text-center">
+          <Flame withBase glow className="h-16 w-auto mx-auto mb-6" />
+          <h1 className="text-3xl sm:text-4xl font-semibold italic tracking-tight mb-4 text-[#f2ead9]">
             We exist to make sacred ceremonies simple
           </h1>
-          <p className="text-muted-foreground leading-relaxed text-lg">
+          <p className="text-[#f2ead9]/70 leading-relaxed text-lg">
             Archanai connects Hindu families across South India with verified, tradition-matched priests
             — making every ceremony as meaningful as it should be.
           </p>
-          <Divider className="mt-8" />
         </div>
       </section>
 
       {/* The problem */}
       <section className="py-20 px-4">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold tracking-tight mb-6">Why we built Archanai</h2>
+          <h2 className="text-2xl font-semibold tracking-tight mb-6">Why we built Archanai</h2>
           <div className="prose prose-sm max-w-none text-muted-foreground space-y-4 leading-relaxed">
             <p>
               Finding a priest for a Griha Pravesh or an Upanayanam in an Indian city today often means calling
@@ -77,15 +73,15 @@ export default function AboutPage() {
       </section>
 
       {/* Values */}
-      <section className="py-16 bg-secondary/60 px-4">
+      <section className="py-16 bg-secondary/50 px-4">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-2xl font-bold tracking-tight mb-10 text-center">What we stand for</h2>
+          <h2 className="text-2xl font-semibold tracking-tight mb-10 text-center">What we stand for</h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {VALUES.map((v) => (
-              <Card key={v.title} className="border-border shadow-none hover:border-verdigris transition-colors">
+              <Card key={v.title} className="border-border shadow-none hover:shadow-md transition-shadow">
                 <CardContent className="pt-6 flex flex-col gap-3">
-                  <div className="h-10 w-10 rounded-full border-2 border-verdigris flex items-center justify-center">
-                    <v.icon className="h-4.5 w-4.5 text-verdigris" />
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <v.icon className="h-5 w-5 text-primary" />
                   </div>
                   <h3 className="font-heading font-semibold">{v.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{v.body}</p>
@@ -99,7 +95,7 @@ export default function AboutPage() {
       {/* Team note */}
       <section className="py-20 px-4">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl font-bold tracking-tight mb-6">V1 — South India first</h2>
+          <h2 className="text-2xl font-semibold tracking-tight mb-6">V1 — South India first</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
             We launched in Chennai, Bangalore, Hyderabad, Cochin, and Amaravati — five cities with
             deep, distinct Hindu traditions and large populations of families who've moved away

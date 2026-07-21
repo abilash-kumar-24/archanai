@@ -1,25 +1,26 @@
 import type { Metadata } from "next"
-import { Zilla_Slab, Noto_Serif, Courier_Prime } from "next/font/google"
+import { Fraunces, Source_Serif_4, IBM_Plex_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "@/components/ui/sonner"
 import { SITE_URL } from "@/lib/site-url"
 import "./globals.css"
 
-const slabDisplay = Zilla_Slab({
-  variable: "--font-slab-display",
-  weight: ["500", "600", "700"],
+const display = Fraunces({
+  variable: "--font-display",
+  style: ["normal", "italic"],
+  axes: ["opsz", "SOFT", "WONK"],
   subsets: ["latin"],
 })
 
-const bodySerif = Noto_Serif({
-  variable: "--font-body-serif",
+const body = Source_Serif_4({
+  variable: "--font-body",
   subsets: ["latin"],
 })
 
-const tabularMono = Courier_Prime({
+const tabularMono = IBM_Plex_Mono({
   variable: "--font-tabular",
-  weight: ["400", "700"],
+  weight: ["400", "600"],
   subsets: ["latin"],
 })
 
@@ -41,7 +42,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${slabDisplay.variable} ${bodySerif.variable} ${tabularMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${tabularMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
         <Toaster richColors position="top-right" />

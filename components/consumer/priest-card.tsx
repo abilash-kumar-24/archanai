@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Stamp } from "@/components/shared/stamp"
+import { FlameBadge } from "@/components/shared/flame-badge"
 import { TRADITIONS, LANGUAGES, CEREMONIES, CITIES } from "@/lib/constants"
 import { formatINR } from "@/lib/utils/booking"
 import type { PriestProfile } from "@/types"
@@ -22,20 +22,20 @@ export function PriestCard({ priest }: PriestCardProps) {
     .toUpperCase()
 
   return (
-    <Card className="border-border shadow-none hover:border-verdigris transition-colors group">
+    <Card className="border-border shadow-none hover:border-primary/50 hover:shadow-md transition-all group">
       <CardContent className="p-5">
         <div className="flex gap-4">
           {/* Avatar */}
           <div className="relative shrink-0">
-            <Avatar className="h-16 w-16 rounded-none border border-border">
+            <Avatar className="h-16 w-16 rounded-xl">
               <AvatarImage src={priest.photoUrl ?? ""} alt={priest.displayName} />
-              <AvatarFallback className="rounded-none bg-secondary text-primary font-heading font-semibold text-lg">
+              <AvatarFallback className="rounded-xl bg-secondary text-primary font-heading font-semibold text-lg">
                 {initials}
               </AvatarFallback>
             </Avatar>
             {priest.aadhaarVerified && (
-              <div className="absolute -bottom-1.5 -right-1.5 h-5 w-5 rounded-full bg-card border-2 border-primary flex items-center justify-center">
-                <Shield className="h-2.5 w-2.5 text-primary" />
+              <div className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
+                <Shield className="h-3 w-3 text-primary-foreground" />
               </div>
             )}
           </div>
@@ -52,7 +52,7 @@ export function PriestCard({ priest }: PriestCardProps) {
                 </p>
               </div>
               {priest.foundingPriest && (
-                <Stamp className="text-[9px] px-2 py-0.5 shrink-0">Founding</Stamp>
+                <FlameBadge className="text-[9px] px-2 py-0.5 shrink-0">Founding</FlameBadge>
               )}
             </div>
 
@@ -68,7 +68,7 @@ export function PriestCard({ priest }: PriestCardProps) {
             {/* Languages */}
             <div className="flex flex-wrap gap-1 mt-2">
               {priest.languages.slice(0, 3).map((lang) => (
-                <Badge key={lang} variant="outline" className="text-xs px-1.5 py-0 h-5 rounded-none border-border">
+                <Badge key={lang} variant="outline" className="text-xs px-1.5 py-0 h-5 border-border">
                   {LANGUAGES[lang]}
                 </Badge>
               ))}
@@ -79,12 +79,12 @@ export function PriestCard({ priest }: PriestCardProps) {
         {/* Ceremonies */}
         <div className="mt-3 flex flex-wrap gap-1">
           {priest.ceremonies.slice(0, 4).map((c) => (
-            <span key={c} className="text-xs text-muted-foreground bg-muted px-2 py-0.5">
+            <span key={c} className="text-xs text-muted-foreground bg-muted rounded-md px-2 py-0.5">
               {CEREMONIES[c].emoji} {CEREMONIES[c].label}
             </span>
           ))}
           {priest.ceremonies.length > 4 && (
-            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5">
+            <span className="text-xs text-muted-foreground bg-muted rounded-md px-2 py-0.5">
               +{priest.ceremonies.length - 4} more
             </span>
           )}
@@ -97,7 +97,7 @@ export function PriestCard({ priest }: PriestCardProps) {
         </div>
 
         {/* Price + CTA */}
-        <div className="mt-4 flex items-center justify-between gap-3 pt-3 border-t border-dashed border-border">
+        <div className="mt-4 flex items-center justify-between gap-3 pt-3 border-t border-border">
           <div>
             <p className="text-xs text-muted-foreground">Starting from</p>
             <p className="font-mono tabular font-bold text-sm text-primary">
