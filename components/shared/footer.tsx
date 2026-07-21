@@ -1,12 +1,12 @@
 import Link from "next/link"
 import { Flame } from "lucide-react"
-import { Ornament } from "@/components/shared/ornament"
+import { Divider } from "@/components/shared/divider"
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/60 bg-background">
+    <footer className="border-t border-border bg-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <Ornament className="mb-10" />
+        <Divider className="mb-10" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-3">
@@ -54,7 +54,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 pt-8 border-t border-border/60 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div className="mt-10 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-3">
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Archanai. All rights reserved.
           </p>

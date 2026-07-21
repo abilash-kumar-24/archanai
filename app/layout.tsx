@@ -1,24 +1,25 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono, Cormorant } from "next/font/google"
+import { Zilla_Slab, Noto_Serif, Courier_Prime } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Toaster } from "@/components/ui/sonner"
 import { SITE_URL } from "@/lib/site-url"
 import "./globals.css"
 
-const geistSans = Geist({
-  variable: "--font-sans",
-  subsets: ["latin"],
-})
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-})
-
-const cormorant = Cormorant({
-  variable: "--font-serif-heading",
+const slabDisplay = Zilla_Slab({
+  variable: "--font-slab-display",
   weight: ["500", "600", "700"],
+  subsets: ["latin"],
+})
+
+const bodySerif = Noto_Serif({
+  variable: "--font-body-serif",
+  subsets: ["latin"],
+})
+
+const tabularMono = Courier_Prime({
+  variable: "--font-tabular",
+  weight: ["400", "700"],
   subsets: ["latin"],
 })
 
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${cormorant.variable} h-full antialiased`}>
+    <html lang="en" className={`${slabDisplay.variable} ${bodySerif.variable} ${tabularMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
         <Toaster richColors position="top-right" />

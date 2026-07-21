@@ -75,7 +75,7 @@ function FilterPanel({
             <button
               key={c}
               onClick={() => updateFilter("city", city === c ? null : c)}
-              className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-colors ${
+              className={`w-full text-left text-sm px-3 py-2 rounded-none transition-colors ${
                 city === c
                   ? "bg-primary text-primary-foreground"
                   : "hover:bg-muted text-foreground"
@@ -98,7 +98,7 @@ function FilterPanel({
             <button
               key={c}
               onClick={() => updateFilter("ceremony", ceremony === c ? null : c)}
-              className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+              className={`w-full text-left text-sm px-3 py-2 rounded-none transition-colors flex items-center gap-2 ${
                 ceremony === c
                   ? "bg-primary text-primary-foreground"
                   : "hover:bg-muted text-foreground"
@@ -121,7 +121,7 @@ function FilterPanel({
             <button
               key={t}
               onClick={() => updateFilter("tradition", tradition === t ? null : t)}
-              className={`w-full text-left text-sm px-3 py-2 rounded-lg transition-colors ${
+              className={`w-full text-left text-sm px-3 py-2 rounded-none transition-colors ${
                 tradition === t
                   ? "bg-primary text-primary-foreground"
                   : "hover:bg-muted text-foreground"
@@ -143,7 +143,7 @@ function FilterPanel({
             <button
               key={l}
               onClick={() => updateFilter("language", language === l ? null : l)}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              className={`text-xs px-3 py-1.5 rounded-none border transition-colors ${
                 language === l
                   ? "bg-primary text-primary-foreground border-primary"
                   : "border-border hover:border-primary/50 text-foreground"

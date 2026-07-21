@@ -1,11 +1,12 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Star, MapPin, Shield, Award, Clock, ChevronRight, Check } from "lucide-react"
+import { Star, MapPin, Shield, Clock, ChevronRight, Check } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Stamp } from "@/components/shared/stamp"
 import { TRADITIONS, LANGUAGES, CEREMONIES, CITIES } from "@/lib/constants"
 import { formatINR } from "@/lib/utils/booking"
 import { prisma } from "@/lib/prisma"
@@ -84,27 +85,24 @@ export default async function PriestProfilePage({
             {/* Profile header */}
             <div className="flex gap-5 items-start">
               <div className="relative shrink-0">
-                <Avatar className="h-24 w-24 rounded-2xl">
+                <Avatar className="h-24 w-24 rounded-none border border-border">
                   <AvatarImage src={priest.photoUrl ?? ""} />
-                  <AvatarFallback className="rounded-2xl bg-accent text-primary font-bold text-2xl">
+                  <AvatarFallback className="rounded-none bg-secondary text-primary font-heading font-bold text-2xl">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
                 {priest.aadhaarVerified && (
-                  <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
-                    <Shield className="h-3.5 w-3.5 text-primary-foreground" />
+                  <div className="absolute -bottom-1.5 -right-1.5 h-6 w-6 rounded-full bg-card border-2 border-primary flex items-center justify-center">
+                    <Shield className="h-3 w-3 text-primary" />
                   </div>
                 )}
               </div>
 
               <div className="flex-1">
                 <div className="flex items-start gap-2 flex-wrap">
-                  <h1 className="text-xl font-semibold">{priest.displayName}</h1>
+                  <h1 className="text-xl font-heading font-semibold">{priest.displayName}</h1>
                   {priest.foundingPriest && (
-                    <Badge variant="secondary" className="text-xs">
-                      <Award className="h-3 w-3 mr-1" />
-                      Founding Priest
-                    </Badge>
+                    <Stamp className="text-[10px]">Founding Priest</Stamp>
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground mt-0.5">
@@ -135,7 +133,7 @@ export default async function PriestProfilePage({
             {/* Bio */}
             {priest.bio && (
               <div>
-                <h2 className="font-semibold mb-3">About</h2>
+                <h2 className="font-heading font-semibold mb-3">About</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">{priest.bio}</p>
               </div>
             )}
@@ -144,16 +142,16 @@ export default async function PriestProfilePage({
 
             {/* Ceremonies */}
             <div>
-              <h2 className="font-semibold mb-4">Ceremonies offered</h2>
+              <h2 className="font-heading font-semibold mb-4">Ceremonies offered</h2>
               <div className="grid sm:grid-cols-2 gap-3">
                 {(priest.ceremonies as CeremonyType[]).map((c) => {
                   const ceremony = CEREMONIES[c]
                   return (
-                    <div key={c} className="flex items-center gap-3 rounded-lg border border-border/60 p-3">
+                    <div key={c} className="flex items-center gap-3 border border-border p-3">
                       <span className="text-2xl">{ceremony.emoji}</span>
                       <div>
                         <p className="text-sm font-medium">{ceremony.label}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="font-mono tabular text-xs text-muted-foreground">
                           {Math.round(ceremony.durationMin / 60)}–{Math.round(ceremony.durationMax / 60)} hours
                         </p>
                       </div>
@@ -167,10 +165,10 @@ export default async function PriestProfilePage({
 
             {/* Languages */}
             <div>
-              <h2 className="font-semibold mb-3">Languages</h2>
+              <h2 className="font-heading font-semibold mb-3">Languages</h2>
               <div className="flex flex-wrap gap-2">
                 {(priest.languages as Language[]).map((l) => (
-                  <Badge key={l} variant="secondary" className="text-sm">
+                  <Badge key={l} variant="secondary" className="text-sm rounded-none">
                     {LANGUAGES[l]}
                   </Badge>
                 ))}
@@ -181,7 +179,7 @@ export default async function PriestProfilePage({
 
             {/* Service areas */}
             <div>
-              <h2 className="font-semibold mb-3">Service areas</h2>
+              <h2 className="font-heading font-semibold mb-3">Service areas</h2>
               <div className="flex flex-wrap gap-4">
                 {(priest.serviceCities as City[]).map((c) => (
                   <div key={c} className="flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -197,10 +195,10 @@ export default async function PriestProfilePage({
             {/* Reviews */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold">Reviews</h2>
+                <h2 className="font-heading font-semibold">Reviews</h2>
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 fill-primary text-primary" />
-                  <span className="font-semibold">{priest.rating.toFixed(1)}</span>
+                  <span className="font-mono tabular font-semibold">{priest.rating.toFixed(1)}</span>
                   <span className="text-sm text-muted-foreground">· {priest.reviewCount} reviews</span>
                 </div>
               </div>
@@ -212,10 +210,10 @@ export default async function PriestProfilePage({
               ) : (
                 <div className="space-y-4">
                   {reviews.map((review) => (
-                    <div key={review.id} className="rounded-xl border border-border/60 p-4">
+                    <div key={review.id} className="border border-border p-4">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-xs font-medium text-primary">
+                          <div className="h-8 w-8 border-2 border-primary flex items-center justify-center text-xs font-heading font-medium text-primary">
                             {review.consumer.name[0]}
                           </div>
                           <div>
@@ -245,11 +243,11 @@ export default async function PriestProfilePage({
           {/* Booking sidebar */}
           <aside className="lg:col-span-1">
             <div className="sticky top-24">
-              <Card className="border-border/60 shadow-sm">
+              <Card className="border-border shadow-none">
                 <CardContent className="p-5 space-y-5">
                   <div>
                     <p className="text-xs text-muted-foreground">Suggested contribution</p>
-                    <p className="text-2xl font-semibold text-primary mt-0.5">
+                    <p className="font-mono tabular text-2xl font-bold text-primary mt-0.5">
                       {formatINR(priest.priceRangeMin)} – {formatINR(priest.priceRangeMax)}
                     </p>
                     <p className="text-xs text-muted-foreground">Paid directly to priest on ceremony day</p>
@@ -282,12 +280,12 @@ export default async function PriestProfilePage({
                   <Separator />
 
                   <div className="grid grid-cols-2 gap-3 text-center">
-                    <div className="rounded-lg bg-muted/60 p-3">
-                      <p className="font-semibold text-lg">{priest.ceremoniesCount}+</p>
+                    <div className="border border-border p-3">
+                      <p className="font-mono tabular font-semibold text-lg">{priest.ceremoniesCount}+</p>
                       <p className="text-xs text-muted-foreground">Ceremonies</p>
                     </div>
-                    <div className="rounded-lg bg-muted/60 p-3">
-                      <p className="font-semibold text-lg">{priest.experienceYears}yr</p>
+                    <div className="border border-border p-3">
+                      <p className="font-mono tabular font-semibold text-lg">{priest.experienceYears}yr</p>
                       <p className="text-xs text-muted-foreground">Experience</p>
                     </div>
                   </div>
