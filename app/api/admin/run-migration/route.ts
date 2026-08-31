@@ -12,9 +12,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
-  await prisma.$executeRawUnsafe(
-    `ALTER TABLE "priests" RENAME COLUMN "aadhaar_verified" TO "identity_verified"`
-  )
-
-  return NextResponse.json({ success: true })
+  try {
+    const cols: { column_name: string }[] = await prisma.$queryRawUnsafe(
+      `select column_name from information_schema.columns where table_name = 'priests' and column_name like '%verified%'`
+    )
+    if (cols.some((c) => c.column_name === "identity_verified")) {
+      return NextResponse.json({ success: true, note: "already renamed", cols })
+    }
+    await prisma.$executeRawUnsafe(
+      `ALTER TABLE "priests" RENAME COLUMN "aadhaar_verified" TO "identity_verified"`
+    )
+    return NextResponse.json({ success: true, cols })
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 })
+  }
 }
