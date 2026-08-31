@@ -32,8 +32,6 @@ export type BookingStatus =
   | "CANCELLED_PRIEST"
   | "NO_SHOW"
 
-export type PaymentStatus = "PENDING" | "DEPOSIT_PAID" | "COMPLETED" | "REFUNDED" | "PARTIALLY_REFUNDED"
-
 export type VerificationStatus = "PENDING" | "VERIFIED" | "REJECTED"
 
 export interface FamilyDetails {
@@ -70,21 +68,6 @@ export interface PriestProfile {
   isActive: boolean
   rating: number
   reviewCount: number
-}
-
-export interface BookingSummary {
-  id: string
-  bookingRef: string
-  ceremonyName: string
-  priestName: string
-  priestPhoto?: string
-  scheduledDate: string
-  scheduledTime: string
-  city: City
-  status: BookingStatus
-  paymentStatus: PaymentStatus
-  totalAmount: number
-  depositAmount: number
 }
 
 export interface PriestSearchFilters {

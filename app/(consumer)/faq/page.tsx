@@ -9,11 +9,11 @@ export const metadata = {
 const FAQS: { q: string; a: string }[] = [
   {
     q: "How does Archanai find and verify priests?",
-    a: "Every priest on Archanai goes through a manual verification process: Aadhaar ID check, tradition and sampradaya review, and a reference call before their profile goes live. We also review their first 3 bookings to ensure quality.",
+    a: "Every priest on Archanai goes through a manual verification process: a phone call to confirm their identity and background, tradition and sampradaya review, before their profile goes live. We also review their first 3 bookings to ensure quality.",
   },
   {
-    q: "What is the 30% deposit? Is it refundable?",
-    a: "The deposit is a commitment from both sides. Families pay 30% of the agreed contribution online at the time of booking. The balance is paid directly to the priest on ceremony day. If you cancel more than 7 days before the ceremony, the deposit is fully refunded. Cancellations within 7 days are subject to a 50% retention fee.",
+    q: "Do I pay anything through Archanai?",
+    a: "No. Archanai never collects payment. You agree a contribution directly with the priest, and pay them in person on ceremony day — no deposit, no platform fee, no card details ever shared with us.",
   },
   {
     q: "How does tradition-matching work?",
@@ -21,7 +21,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "What happens if the priest cancels?",
-    a: "If a priest cancels within 48 hours of the ceremony, Archanai will work to find a replacement priest of the same tradition within 2 hours. If no suitable replacement is found, you receive a full refund of your deposit.",
+    a: "If a priest cancels within 48 hours of the ceremony, Archanai will work to find a replacement priest of the same tradition within 2 hours. Since no payment is collected through the platform, there's nothing to refund — you simply rebook.",
   },
   {
     q: "What is included in the samagri?",
@@ -36,16 +36,16 @@ const FAQS: { q: string; a: string }[] = [
     a: "Each priest lists the languages they conduct ceremonies in. Most South Indian Vedic ceremonies are primarily in Sanskrit, but the priest will explain and guide your family in your regional language (Tamil, Telugu, Kannada, or Malayalam).",
   },
   {
-    q: "How is the platform fee calculated?",
-    a: "Archanai charges 12% of the deposit amount as a platform fee. This is already factored into the deposit you pay — there are no hidden charges. The balance paid to the priest on ceremony day has no platform deduction.",
+    q: "Does Archanai charge a platform fee?",
+    a: "No. Archanai is free for both families and priests — no commission, no listing fee, no platform deduction. We don't process any payment, so there's nothing for us to take a cut of.",
   },
   {
     q: "Can a priest decline my booking?",
-    a: "Yes. Priests review booking requests and may decline if they're unavailable on the date or if the ceremony type isn't a good fit. You'll be notified via WhatsApp within 24 hours, and your deposit hold is released if declined.",
+    a: "Yes. Priests review booking requests and may decline if they're unavailable on the date or if the ceremony type isn't a good fit. You'll be notified by email within 24 hours.",
   },
   {
     q: "I'm a priest. How do I join?",
-    a: "Apply through our priest registration page. You'll complete a 4-step application covering your tradition, skills, service area, and identity documents. Our team reviews applications within 2–3 business days. Early applicants receive Founding Priest status — zero commission for the first 3 months.",
+    a: "Apply through our priest registration page. You'll complete a 4-step application covering your tradition, skills, and service area. Our team calls to verify your identity and background before your profile goes live, usually within 2–3 business days. Early applicants receive Founding Priest status — zero commission, ever.",
   },
 ]
 
@@ -70,8 +70,7 @@ export default function FaqPage() {
         <div className="mt-16 rounded-2xl bg-accent/30 p-8 text-center">
           <h2 className="font-semibold mb-2">Still have questions?</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Reach us on WhatsApp at <strong>+91 98765 43210</strong> or email{" "}
-            <strong>support@archanai.in</strong>
+            Email us at <strong>support@archanai.in</strong>
           </p>
           <Button asChild variant="outline">
             <Link href="/browse">Browse Priests</Link>

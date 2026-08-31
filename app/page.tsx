@@ -22,7 +22,7 @@ const FEATURED_CEREMONIES: CeremonyType[] = [
 const FEATURED_CITIES: City[] = ["CHENNAI", "BANGALORE", "HYDERABAD", "COCHIN", "AMARAVATI"]
 
 const TRUST_POINTS = [
-  { icon: Shield, title: "Aadhaar Verified", desc: "Every priest is identity-verified before onboarding" },
+  { icon: Shield, title: "Identity Verified", desc: "Every priest is verified by phone before onboarding" },
   { icon: Star, title: "Family Reviews", desc: "Real reviews from families, with ceremony photos" },
   { icon: Clock, title: "On-Time Guarantee", desc: "Priest cancellation? We find a replacement within 2 hours" },
   { icon: MapPin, title: "Tradition Matched", desc: "Sampradaya and language matched to your family" },
@@ -31,7 +31,7 @@ const TRUST_POINTS = [
 const HOW_IT_WORKS = [
   { step: "01", title: "Choose your ceremony", desc: "Pick from 6 ceremony types across all South Indian traditions" },
   { step: "02", title: "Find your priest", desc: "Filter by tradition, language, rating, and availability" },
-  { step: "03", title: "Book & confirm", desc: "Pay a 30% deposit — balance paid directly to priest on the day" },
+  { step: "03", title: "Book & confirm", desc: "Send a booking request — pay the priest directly, no platform fees" },
   { step: "04", title: "Ceremony day", desc: "Priest arrives prepared with your family details. You just be present." },
 ]
 
@@ -304,7 +304,7 @@ export default function HomePage() {
             Are you a priest?
           </h2>
           <p className="text-[#f2ead9]/70 mb-6 max-w-xl mx-auto leading-relaxed">
-            Join as a Founding Priest — zero commission for your first 3 months, a permanent badge on your profile, and access to hundreds of families in your city.
+            Join as a Founding Priest — zero commission, ever, a permanent badge on your profile, and access to hundreds of families in your city.
           </p>
           <Button size="lg" asChild>
             <Link href="/priest/register">

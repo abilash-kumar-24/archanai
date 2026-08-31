@@ -45,9 +45,8 @@ A trusted, professional marketplace where families find verified Hindu priests f
 | Database | Supabase (PostgreSQL) |
 | ORM | Prisma |
 | Auth | Supabase Auth (OTP / Google OAuth) |
-| Payments | Razorpay |
+| Payments | None — paid directly between family and priest |
 | File Storage | Supabase Storage |
-| WhatsApp | Twilio WhatsApp Business API |
 | Maps | Google Maps API |
 | Email | Resend |
 | Deployment | Vercel (frontend + API) |
@@ -78,11 +77,10 @@ A trusted, professional marketplace where families find verified Hindu priests f
   - Samagri choice (priest-arranged or platform checklist)
   - Family details form (names, gotram, nakshatra, rashi)
   - Special instructions / custom requests
-- [ ] Deposit payment (30%) via Razorpay (UPI, card, netbanking)
-- [ ] Booking confirmation via WhatsApp + Email
+- [ ] Booking confirmation via Email
 - [ ] Samagri checklist PDF (auto-generated, ceremony + region aware)
-- [ ] 24h ceremony reminder (WhatsApp)
-- [ ] Post-ceremony review request (WhatsApp)
+- [ ] 24h ceremony reminder (Email)
+- [ ] Post-ceremony review request (Email)
 - [ ] Review submission with optional photo upload
 
 #### V2 — Planned
@@ -162,12 +160,9 @@ Samagri lists are region-aware. A Rudrabhishek in Tamil Nadu uses different item
 
 ## Pricing Model
 
-- Consumer pays **30% deposit** at booking via Razorpay
-- Balance paid **directly to priest** (cash or UPI) on ceremony day
-- Platform commission: **12% of deposit** (V1)
+- Archanai collects no payment and charges no commission
+- Full contribution paid **directly to priest** (cash or UPI) on ceremony day
 - Priests set a **"Suggested Contribution Range"** (respects dakshina culture)
-- Travel fee auto-calculated based on distance from priest's base location
-- Urgency/same-day premium: +25%
 
 ---
 
@@ -369,15 +364,6 @@ archanai/
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-
-# Razorpay
-RAZORPAY_KEY_ID=
-RAZORPAY_KEY_SECRET=
-
-# Twilio WhatsApp
-TWILIO_ACCOUNT_SID=
-TWILIO_AUTH_TOKEN=
-TWILIO_WHATSAPP_NUMBER=
 
 # Google Maps
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=

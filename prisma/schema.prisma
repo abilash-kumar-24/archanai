@@ -69,14 +69,6 @@ enum BookingStatus {
   NO_SHOW
 }
 
-enum PaymentStatus {
-  PENDING
-  DEPOSIT_PAID
-  COMPLETED
-  REFUNDED
-  PARTIALLY_REFUNDED
-}
-
 enum VerificationStatus {
   PENDING
   VERIFIED
@@ -223,8 +215,7 @@ model Booking {
   ceremonyId String  @map("ceremony_id")
   ceremony   Ceremony @relation(fields: [ceremonyId], references: [id])
 
-  status        BookingStatus @default(PENDING)
-  paymentStatus PaymentStatus @default(PENDING)
+  status BookingStatus @default(PENDING)
 
   scheduledDate DateTime @map("scheduled_date")
   scheduledTime String   @map("scheduled_time")
@@ -244,12 +235,7 @@ model Booking {
   basePrice    Int @map("base_price")
   travelFee    Int @default(0) @map("travel_fee")
   samagriPrice Int @default(0) @map("samagri_price")
-  platformFee  Int @map("platform_fee")
   totalAmount  Int @map("total_amount")
-  depositAmount Int @map("deposit_amount")
-
-  razorpayOrderId   String? @map("razorpay_order_id")
-  razorpayPaymentId String? @map("razorpay_payment_id")
 
   specialRequests    String? @map("special_requests")
   priestNotes        String? @map("priest_notes")

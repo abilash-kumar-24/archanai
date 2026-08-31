@@ -127,7 +127,3 @@ export const CITY_LANGUAGES: Record<City, Language[]> = {
   COCHIN: ["MALAYALAM", "SANSKRIT", "ENGLISH"],
   AMARAVATI: ["TELUGU", "SANSKRIT", "ENGLISH"],
 }
-
-export const PLATFORM_COMMISSION_RATE = 0.12
-export const DEPOSIT_RATE = 0.30
-export const URGENCY_PREMIUM_RATE = 0.25

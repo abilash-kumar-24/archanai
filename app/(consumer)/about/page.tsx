@@ -13,7 +13,7 @@ const VALUES = [
   {
     icon: Shield,
     title: "Trust first",
-    body: "Every priest is Aadhaar-verified and tradition-reviewed before going live. We don't compromise on who represents your family's ceremonies.",
+    body: "Every priest is identity-verified by phone and tradition-reviewed before going live. We don't compromise on who represents your family's ceremonies.",
   },
   {
     icon: Star,
@@ -23,7 +23,7 @@ const VALUES = [
   {
     icon: Clock,
     title: "Transparency",
-    body: "No hidden fees. The contribution range is shown upfront. The 30% deposit is a commitment from both sides — refundable up to 7 days before the ceremony.",
+    body: "No hidden fees, no platform commission. The contribution range is shown upfront and paid directly to the priest — Archanai never touches the money.",
   },
   {
     icon: MapPin,
@@ -65,7 +65,7 @@ export default function AboutPage() {
             </p>
             <p>
               Archanai exists to fix both sides of that equation. Families find tradition-matched, verified
-              priests in minutes. Priests get a structured calendar, confirmed bookings, and on-time deposits
+              priests in minutes. Priests get a structured calendar and confirmed bookings
               — so they can focus entirely on the ceremony.
             </p>
           </div>

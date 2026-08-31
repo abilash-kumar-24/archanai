@@ -86,10 +86,7 @@ export async function POST(req: NextRequest) {
         basePrice:    priest.priceRangeMin,
         travelFee:    0,
         samagriPrice: data.samagriOption === "PRIEST_ARRANGED" ? 500 : 0,
-        platformFee:  0,
         totalAmount:  priest.priceRangeMin,
-        // 30% deposit, minimum ₹500, rounded to nearest ₹100
-        depositAmount: Math.max(500, Math.round((priest.priceRangeMin * 0.3) / 100) * 100),
       },
     })
 

@@ -17,7 +17,7 @@ export default function PrivacyPage() {
               <li><strong className="text-foreground">Contact details:</strong> Name, mobile number, email address.</li>
               <li><strong className="text-foreground">Booking details:</strong> Ceremony type, date, address, and family ritual details (gotram, nakshatra) you share at booking time.</li>
               <li><strong className="text-foreground">Payment data:</strong> Archanai is free — no payment details are collected or stored.</li>
-              <li><strong className="text-foreground">Priest documents:</strong> Aadhaar card copies and certificates uploaded during priest registration, stored securely and accessed only by our verification team.</li>
+              <li><strong className="text-foreground">Priest verification:</strong> We don't collect ID documents. Our team verifies identity and background over a phone call using the mobile number provided at registration.</li>
               <li><strong className="text-foreground">Usage data:</strong> Standard server logs (IP address, browser, pages visited) for debugging and analytics.</li>
             </ul>
           </section>
@@ -61,8 +61,7 @@ export default function PrivacyPage() {
             <h2 className="text-base font-semibold text-foreground mb-3">7. Contact</h2>
             <p>
               Archanai Technologies Private Limited<br />
-              Email: privacy@archanai.in<br />
-              WhatsApp: +91 98765 43210
+              Email: privacy@archanai.in
             </p>
           </section>
         </div>

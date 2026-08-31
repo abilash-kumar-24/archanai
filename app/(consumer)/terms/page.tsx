@@ -18,35 +18,29 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">2. The Platform</h2>
-            <p>Archanai is a marketplace that connects Hindu families ("Consumers") with independent Hindu priests ("Priests"). Archanai is not a party to the ceremony itself — we facilitate discovery, booking, and payment. The ceremony is conducted solely by the Priest.</p>
+            <p>Archanai is a marketplace that connects Hindu families ("Consumers") with independent Hindu priests ("Priests"). Archanai facilitates discovery and booking only — we are not a party to payment or to the ceremony itself. The ceremony is conducted solely by the Priest.</p>
           </section>
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">3. Bookings and payment</h2>
             <ul className="space-y-2 list-disc list-inside">
-              <li>Bookings are confirmed when the Consumer pays the 30% deposit and the Priest accepts the booking via WhatsApp or the dashboard.</li>
-              <li>The remaining balance ("dakshina") is paid directly to the Priest on ceremony day. Archanai has no involvement in the balance payment.</li>
-              <li>Archanai charges a 12% platform fee on the deposit amount. This is included in the deposit total displayed at checkout.</li>
+              <li>A booking is a request. It is confirmed once the Priest accepts it via the dashboard, and the Consumer is notified by email.</li>
+              <li>Archanai does not collect, process, or hold any payment. The full contribution ("dakshina") is agreed and paid directly between the Consumer and the Priest, on ceremony day.</li>
+              <li>Archanai charges no commission, no platform fee, and no listing fee to either party.</li>
               <li>Prices shown are suggested contribution ranges set by the Priest, not fixed fees.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-base font-semibold text-foreground mb-3">4. Cancellation and refunds</h2>
-            <ul className="space-y-2 list-disc list-inside">
-              <li><strong className="text-foreground">Consumer cancels 7+ days before ceremony:</strong> Full deposit refund (minus Razorpay processing fees, typically 2%).</li>
-              <li><strong className="text-foreground">Consumer cancels within 7 days:</strong> 50% of the deposit is refunded. The remaining 50% is paid to the Priest as a cancellation fee.</li>
-              <li><strong className="text-foreground">Priest cancels:</strong> Full deposit refund to the Consumer. Archanai will attempt to find a replacement priest within 2 hours.</li>
-              <li>Refunds are processed within 5–7 business days to the original payment method.</li>
-            </ul>
+            <h2 className="text-base font-semibold text-foreground mb-3">4. Cancellation</h2>
+            <p>Since Archanai does not collect payment, there is nothing to refund. If a Consumer or Priest needs to cancel, they should notify the other party as early as possible. If a Priest cancels within 48 hours of the ceremony, Archanai will attempt to find a replacement of the same tradition within 2 hours.</p>
           </section>
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">5. Priest obligations</h2>
             <ul className="space-y-2 list-disc list-inside">
-              <li>Priests must be Aadhaar-verified and maintain an accurate profile at all times.</li>
+              <li>Priests must complete Archanai's verification call and maintain an accurate profile at all times.</li>
               <li>Priests must arrive at the ceremony venue on time and perform the ceremony as agreed.</li>
-              <li>Priests must not accept private bookings from Consumers met through Archanai for a period of 12 months after any Archanai booking, to protect the marketplace integrity.</li>
               <li>Priests with more than 2 cancellations per quarter may be suspended from the Platform.</li>
             </ul>
           </section>
@@ -56,13 +50,13 @@ export default function TermsPage() {
             <ul className="space-y-2 list-disc list-inside">
               <li>Consumers must provide accurate ceremony and family details at booking time.</li>
               <li>Consumers must have the ceremony venue ready and accessible at the booked time.</li>
-              <li>Consumers agree to pay the balance contribution to the Priest directly on ceremony day.</li>
+              <li>Consumers agree to pay the contribution to the Priest directly on ceremony day.</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">7. Limitation of liability</h2>
-            <p>Archanai is a marketplace and is not liable for the conduct of Priests or the outcome of any ceremony. Our total liability to you in connection with any booking is limited to the deposit amount paid for that booking.</p>
+            <p>Archanai is a marketplace and is not liable for the conduct of Priests, the outcome of any ceremony, or any payment made directly between Consumer and Priest — Archanai is not a party to that payment.</p>
           </section>
 
           <section>
@@ -74,8 +68,7 @@ export default function TermsPage() {
             <h2 className="text-base font-semibold text-foreground mb-3">9. Contact</h2>
             <p>
               Archanai Technologies Private Limited<br />
-              Email: legal@archanai.in<br />
-              WhatsApp: +91 98765 43210
+              Email: legal@archanai.in
             </p>
           </section>
         </div>

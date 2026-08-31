@@ -145,7 +145,7 @@ export default function PriestRegisterPage() {
           </Link>
           <h1 className="text-2xl font-semibold tracking-tight">Join as a Founding Priest</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Zero commission for 3 months · Permanent Founding badge · 100s of families in your city
+            Zero commission, ever · Permanent Founding badge · 100s of families in your city
           </p>
         </div>
 
@@ -301,7 +301,7 @@ export default function PriestRegisterPage() {
 
                 <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
                   <p className="font-medium">Founding Priest benefit</p>
-                  <p className="text-xs mt-0.5">Zero platform commission for your first 3 months. After that, 12% only on the deposit amount.</p>
+                  <p className="text-xs mt-0.5">Archanai never charges commission. Families pay you directly — the full amount, every time.</p>
                 </div>
               </>
             )}

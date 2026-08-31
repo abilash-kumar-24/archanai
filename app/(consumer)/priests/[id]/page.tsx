@@ -257,7 +257,7 @@ export default async function PriestProfilePage({
                     {[
                       "No platform fee — 100% free",
                       "Priest notified immediately",
-                      "Confirmation via WhatsApp",
+                      "Confirmation via email",
                       "Samagri checklist included",
                     ].map((point) => (
                       <div key={point} className="flex items-center gap-2 text-sm">
@@ -274,7 +274,7 @@ export default async function PriestProfilePage({
                   </Button>
 
                   <p className="text-xs text-center text-muted-foreground">
-                    Free cancellation up to 7 days before ceremony
+                    No payment collected — nothing to refund if plans change
                   </p>
 
                   <Separator />
