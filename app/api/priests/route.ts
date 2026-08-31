@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
           priceRangeMin: true,
           priceRangeMax: true,
           templeAffiliation: true,
-          aadhaarVerified: true,
+          identityVerified: true,
           foundingPriest: true,
           rating: true,
           reviewCount: true,

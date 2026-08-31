@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Flame, Check, ChevronRight, Loader2, Upload } from "lucide-react"
+import { Flame, Check, ChevronRight, Loader2, Phone } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils"
 import { TRADITIONS, LANGUAGES, CEREMONIES, CITIES } from "@/lib/constants"
 import type { City, CeremonyType, Language, Tradition } from "@/types"
 
-const STEPS = ["Personal Info", "Tradition & Skills", "Service Area & Pricing", "Documents"]
+const STEPS = ["Personal Info", "Tradition & Skills", "Service Area & Pricing", "Verification"]
 
 const step1Schema = z.object({
   displayName:    z.string().min(3, "Full name required"),
@@ -306,33 +306,24 @@ export default function PriestRegisterPage() {
               </>
             )}
 
-            {/* Step 3 — Documents */}
+            {/* Step 3 — Verification */}
             {step === 3 && (
               <>
-                <h2 className="font-semibold">Verification documents</h2>
+                <h2 className="font-semibold">Verification call</h2>
                 <p className="text-sm text-muted-foreground">
-                  These help us verify your identity and build trust with families. All documents are reviewed privately by our team.
+                  We don&apos;t collect ID documents online. Once you submit, our team will call you at the
+                  mobile number you provided to verify your identity and background before your profile goes live.
                 </p>
 
-                {[
-                  { label: "Profile photo", desc: "Clear face photo, professional attire preferred", required: true },
-                  { label: "Aadhaar card", desc: "Front and back (for identity verification)", required: true },
-                  { label: "Certificate / Gurukul proof", desc: "Training certificate or a letter from your temple/math", required: false },
-                ].map((doc) => (
-                  <div key={doc.label} className="flex items-center gap-4 rounded-xl border border-border/60 p-4">
-                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                      <Upload className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">
-                        {doc.label}
-                        {doc.required && <span className="text-destructive ml-1">*</span>}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{doc.desc}</p>
-                    </div>
-                    <Button size="sm" variant="outline" className="shrink-0">Upload</Button>
+                <div className="flex items-center gap-4 rounded-xl border border-border/60 p-4">
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
                   </div>
-                ))}
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">We&apos;ll call to verify</p>
+                    <p className="text-xs text-muted-foreground">Usually within 2–3 business days. No documents needed from you.</p>
+                  </div>
+                </div>
 
                 <div className="flex items-start gap-2 mt-2">
                   <Checkbox id="agree" className="mt-0.5" />

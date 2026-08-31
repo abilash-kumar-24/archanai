@@ -24,6 +24,7 @@ export async function POST(
     data: {
       verificationStatus: action === "approve" ? "VERIFIED" : "REJECTED",
       isActive: action === "approve",
+      identityVerified: action === "approve",
     },
   })
 

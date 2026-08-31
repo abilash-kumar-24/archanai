@@ -64,7 +64,7 @@ export interface PriestProfile {
   priceRangeMax: number
   travelFeePerKm: number
   templeAffiliation?: string
-  aadhaarVerified: boolean
+  identityVerified: boolean
   verificationStatus: VerificationStatus
   foundingPriest: boolean
   isActive: boolean

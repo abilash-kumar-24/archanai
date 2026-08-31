@@ -127,7 +127,7 @@ model Priest {
   travelFeePerKm Int @default(10) @map("travel_fee_per_km")
 
   templeAffiliation  String?            @map("temple_affiliation")
-  aadhaarVerified    Boolean            @default(false) @map("aadhaar_verified")
+  identityVerified   Boolean            @default(false) @map("identity_verified")
   verificationStatus VerificationStatus @default(PENDING) @map("verification_status")
   foundingPriest     Boolean            @default(false) @map("founding_priest")
 

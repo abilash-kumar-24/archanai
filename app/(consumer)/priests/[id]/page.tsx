@@ -43,7 +43,7 @@ export default async function PriestProfilePage({
         priceRangeMax:    true,
         travelFeePerKm:   true,
         templeAffiliation:true,
-        aadhaarVerified:  true,
+        identityVerified:  true,
         foundingPriest:   true,
         rating:           true,
         reviewCount:      true,
@@ -91,7 +91,7 @@ export default async function PriestProfilePage({
                     {initials}
                   </AvatarFallback>
                 </Avatar>
-                {priest.aadhaarVerified && (
+                {priest.identityVerified && (
                   <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-primary flex items-center justify-center">
                     <Shield className="h-3.5 w-3.5 text-primary-foreground" />
                   </div>
