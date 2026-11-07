@@ -61,7 +61,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">7. Contact</h2>
             <p>
-              Archanai Technologies Private Limited<br />
+              Archanai<br />
               Email: privacy@archanai.in
             </p>
           </section>
