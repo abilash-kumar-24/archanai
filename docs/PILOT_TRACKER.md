@@ -2,7 +2,7 @@
 
 Legend: `[x]` done and verified as stated · `[~]` code complete, goes live only after a human step · `[!]` blocked, human step required · `[ ]` open
 
-**Everything marked `[~]` depends on migration `0004` being applied to the live database (see "Human steps").** Until then the deployed app and the DB disagree, so do not deploy before step 2.
+Migrations 0001→0004 are applied to the live database. Items marked `[~]` are deployed and tested by the API journey suite; they still need the manual browser pass.
 
 ## Verification performed (and what was not)
 - Verified (latest): the API journey test (`npm run test:api`, 13 tests) drives the real route handlers end to end and asserts emails; deployed to production. Earlier: `tsc` clean · `eslint` 0 errors (0 warnings) · `next build` passes · 7 unit tests (`npm test`) · migrations 0001→0004 applied to a throwaway in-memory Postgres (PGlite) with legacy data, confirming the backfill, the blocked-date dedupe and the one-live-booking-per-day index · Prisma queries behind availability, booking, reviews, favourites, notifications, browse filters and the registration/profile transactions run against that database (15 checks pass) · production server started, 11 public/guarded routes return expected status codes.
@@ -12,7 +12,7 @@ Legend: `[x]` done and verified as stated · `[~]` code complete, goes live only
 - [x] A1 Admin/priest roles read from `app_metadata`; existing admin + priest users backfilled in Supabase
 - [x] A2 `priest-photos` bucket created (`priest-docs`, private, is created on first document upload)
 - [x] A3 Empty-string phone bug (code + data)
-- [!] A4 Baseline `_prisma_migrations` — blocked: the permission checker denies writes to the production DB from this session
+- [x] A4 Baseline `_prisma_migrations` and 0004 applied by the owner ("all migrations successful")
 - [x] A5 Email provider: switched to Brevo SMTP (works without a domain, sender `gigarthub.team@gmail.com`; a test mail was delivered); Supabase auth emails use the same SMTP and are branded. Remaining caveat: Gmail sender ⇒ spam risk. Original note: Resend sending domain — Supabase SMTP and app email both send from `onboarding@resend.dev`, which only delivers to the Resend account owner. Magic-link login and all notification emails fail for real users until fixed
 - [ ] A6 Delete test accounts (`e2e-*@archanai-test.dev`) and the test priest before onboarding (your call)
 - [ ] A7 Branded magic-link email (Supabase Auth → Email templates; current text is the default "Magic Link")
@@ -91,13 +91,11 @@ Google/phone login · WhatsApp/SMS (removed earlier on purpose) · map autocompl
 ## Decisions for you
 - Wording that is a business commitment rather than product behaviour, left as written: "zero commission, ever" and "Founding Priest" (register page, FAQ, home), and "every priest is verified by phone" (home, about, FAQ). True only while you keep doing it.
 
-## Human steps (cannot be done from here)
-1. **Resend**: verify a domain; set `FROM_EMAIL` in Vercel; in Supabase → Auth → SMTP use the same sender and a Resend SMTP key.
-2. **Database** (run in order, from the repo with `.env.local` pointing at production):
-   `npx prisma migrate resolve --applied 0001_init`
-   `npx prisma migrate resolve --applied 0002_rename_identity_verified`
-   `npx prisma migrate resolve --applied 0003_remove_payment_gateway`
-   `npx prisma migrate deploy`
-3. **Vercel env**: `CRON_SECRET` (long random string), `NEXT_PUBLIC_APP_URL=https://archanai.vercel.app`.
-4. Deploy; then do the manual pass: sign in → register as priest → upload photo/doc → admin approves → book from another account → accept → reschedule → complete with amount → review → check bell and emails.
-5. Remove test accounts; onboard real priests.
+## Contact and legal wording
+- All contact addresses are `gigarthub.team@gmail.com` (pilot, no domain). The unverified company name was removed from Terms and Privacy.
+
+## Remaining human steps
+1. Sign in with `gigarthub.team@gmail.com`, then promote it to ADMIN (Supabase `app_metadata.role` + `users.role`).
+2. Manual pass with two real inboxes: sign in → register as priest → upload photo/doc → admin approves → book from another account → accept → reschedule → complete with amount → review → check bell and emails (and spam folder).
+3. Delete test accounts (`e2e-*@archanai-test.dev`) and the test priest (A6).
+4. Onboard real priests. Secret rotation (Brevo, Resend, Supabase token, `CRON_SECRET`) was deliberately skipped by the owner.
