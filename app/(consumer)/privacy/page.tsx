@@ -17,7 +17,8 @@ export default function PrivacyPage() {
               <li><strong className="text-foreground">Contact details:</strong> Name, mobile number, email address.</li>
               <li><strong className="text-foreground">Booking details:</strong> Ceremony type, date, address, and family ritual details (gotram, nakshatra) you share at booking time.</li>
               <li><strong className="text-foreground">Payment data:</strong> Archanai is free — no payment details are collected or stored.</li>
-              <li><strong className="text-foreground">Priest verification:</strong> We don't collect ID documents. Our team verifies identity and background over a phone call using the mobile number provided at registration.</li>
+              <li><strong className="text-foreground">Priest verification:</strong> Our team verifies identity and background over a phone call using the mobile number provided at registration. Priests may also choose to upload documents (such as ID proof or a training certificate). These are stored privately, are visible only to the Archanai team, and can be deleted by the priest at any time.</li>
+              <li><strong className="text-foreground">Sharing between families and priests:</strong> A family&apos;s mobile number and address are shared with a priest only for a booking that priest has received, and the priest&apos;s mobile number is shown to the family only after the priest accepts.</li>
               <li><strong className="text-foreground">Usage data:</strong> Standard server logs (IP address, browser, pages visited) for debugging and analytics.</li>
             </ul>
           </section>
@@ -44,7 +45,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">4. Data retention</h2>
-            <p>Booking records are retained for 3 years for tax and dispute purposes. Priest verification documents are retained for 2 years after a priest's account is closed. You may request deletion of your account and associated data by emailing privacy@archanai.in — subject to retention obligations.</p>
+            <p>Booking records are retained for 3 years for tax and dispute purposes. Priest verification documents are retained for 2 years after a priest&apos;s account is closed. You may request deletion of your account and associated data by emailing privacy@archanai.in — subject to retention obligations.</p>
           </section>
 
           <section>

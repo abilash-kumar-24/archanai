@@ -22,6 +22,7 @@ function LoginForm() {
   const redirect     = searchParams.get("redirect") ?? "/"
 
   const [email,   setEmail]   = useState("")
+  const [name,    setName]    = useState("")
   const [loading, setLoading] = useState(false)
   const [sent,    setSent]    = useState(false)
   const [error,   setError]   = useState<string | null>(null)
@@ -39,6 +40,7 @@ function LoginForm() {
       email,
       options: {
         shouldCreateUser: true,
+        data:             name.trim() ? { full_name: name.trim() } : undefined,
         emailRedirectTo:  `${window.location.origin}/api/auth/callback?redirect=${encodeURIComponent(redirect)}`,
       },
     })
@@ -99,6 +101,11 @@ function LoginForm() {
               )}
 
               <div>
+                <Label htmlFor="name" className="text-sm">Your name <span className="text-muted-foreground">(new users)</span></Label>
+                <Input id="name" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} className="mt-1" autoFocus />
+              </div>
+
+              <div>
                 <Label htmlFor="email" className="text-sm">Email address</Label>
                 <Input
                   id="email"
@@ -108,7 +115,6 @@ function LoginForm() {
                   onChange={(e) => { setEmail(e.target.value); setError(null) }}
                   onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                   className="mt-1"
-                  autoFocus
                 />
               </div>
 

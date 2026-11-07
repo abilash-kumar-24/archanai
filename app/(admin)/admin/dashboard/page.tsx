@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { format, startOfMonth } from "date-fns"
 import { Users, CalendarCheck, TrendingUp, Clock } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
@@ -8,6 +9,7 @@ import { prisma } from "@/lib/prisma"
 import { CEREMONIES, CITIES, TRADITIONS } from "@/lib/constants"
 import { formatINR } from "@/lib/utils/booking"
 import { PriestActionButtons } from "@/components/admin/priest-action-buttons"
+import { SignOutButton } from "@/components/priest/sign-out-button"
 import type { CeremonyType, City } from "@/types"
 
 export const metadata = { title: "Admin — Archanai" }
@@ -34,29 +36,36 @@ export default async function AdminDashboard() {
     avgRating,
     recentBookings,
     pendingPriestList,
+    allPriests,
   ] = await Promise.all([
     prisma.booking.count(),
     prisma.booking.count({ where: { createdAt: { gte: monthStart } } }),
     prisma.priest.count({ where: { isActive: true, verificationStatus: "VERIFIED" } }),
     prisma.priest.count({ where: { verificationStatus: "PENDING" } }),
-    prisma.priest.aggregate({ _avg: { rating: true } }),
+    prisma.priest.aggregate({ _avg: { rating: true }, where: { reviewCount: { gt: 0 } } }),
     prisma.booking.findMany({
-      take: 10,
+      take: 30,
       orderBy: { createdAt: "desc" },
-      include: { ceremony: true },
+      include: { ceremony: true, consumer: { select: { name: true, email: true } }, priest: { select: { displayName: true } } },
     }),
     prisma.priest.findMany({
       where: { verificationStatus: "PENDING" },
       include: { user: true },
       orderBy: { createdAt: "desc" },
-      take: 10,
+      take: 20,
+    }),
+    prisma.priest.findMany({
+      where: { verificationStatus: { not: "PENDING" } },
+      include: { user: { select: { email: true, phone: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 100,
     }),
   ])
 
   const stats = [
     { label: "Total Bookings",   value: String(totalBookings),               delta: `+${thisMonthBookings} this month`, icon: CalendarCheck },
     { label: "Active Priests",   value: String(activePriests),               delta: `${pendingPriests} pending review`,  icon: Users },
-    { label: "Avg Rating",       value: avgRating._avg.rating?.toFixed(1) ?? "—", delta: "Across all priests",          icon: TrendingUp },
+    { label: "Avg Rating",       value: avgRating._avg.rating?.toFixed(1) ?? "—", delta: "Priests with reviews",       icon: TrendingUp },
   ]
 
   return (
@@ -66,7 +75,11 @@ export default async function AdminDashboard() {
           <span className="text-lg font-bold text-primary">Archanai</span>
           <span className="text-muted-foreground text-sm">· Admin</span>
         </div>
-        <span className="text-xs text-muted-foreground">{format(now, "EEEE, d MMM yyyy")}</span>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-xs text-muted-foreground hover:text-foreground">View site</Link>
+          <span className="text-xs text-muted-foreground hidden sm:inline">{format(now, "EEEE, d MMM yyyy")}</span>
+          <div className="w-28"><SignOutButton /></div>
+        </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -97,6 +110,7 @@ export default async function AdminDashboard() {
                 <Badge variant="destructive" className="ml-2 h-4 px-1 text-xs">{pendingPriests}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="priests">All Priests</TabsTrigger>
             <TabsTrigger value="bookings">Recent Bookings</TabsTrigger>
           </TabsList>
 
@@ -121,7 +135,7 @@ export default async function AdminDashboard() {
                               {TRADITIONS[p.tradition]?.label} · {p.serviceCities.map((c) => CITIES[c as City]?.label).join(", ")} · {p.experienceYears}y exp
                             </p>
                             <p className="text-xs text-muted-foreground mt-0.5">
-                              Applied {format(p.createdAt, "d MMM yyyy")}
+                              Applied {format(p.createdAt, "d MMM yyyy")} · 📞 {p.user.phone ? `+91 ${p.user.phone}` : "no phone"} · {p.user.email}
                             </p>
                           </div>
                           <Badge variant="secondary" className="shrink-0">
@@ -144,6 +158,29 @@ export default async function AdminDashboard() {
             )}
           </TabsContent>
 
+          <TabsContent value="priests" className="mt-6">
+            <Card className="border-border/60 shadow-none divide-y divide-border/60">
+              {allPriests.length === 0 ? (
+                <p className="p-4 text-sm text-muted-foreground">No reviewed priests yet.</p>
+              ) : allPriests.map((p) => (
+                <div key={p.id} className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium">{p.displayName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {p.serviceCities.map((c) => CITIES[c as City]?.label).join(", ")} · 📞 {p.user.phone ? `+91 ${p.user.phone}` : "no phone"} · {p.user.email}
+                      </p>
+                    </div>
+                    <Badge variant={p.verificationStatus === "VERIFIED" && p.isActive ? "default" : "secondary"}>
+                      {p.verificationStatus === "REJECTED" ? "Rejected" : p.isActive ? "Live" : "Paused"}
+                    </Badge>
+                  </div>
+                  {p.verificationStatus === "VERIFIED" && <PriestActionButtons priestId={p.id} mode={p.isActive ? "active" : "paused"} />}
+                </div>
+              ))}
+            </Card>
+          </TabsContent>
+
           <TabsContent value="bookings" className="mt-6">
             <Card className="border-border/60 shadow-none divide-y divide-border/60">
               {recentBookings.length === 0 ? (
@@ -157,13 +194,13 @@ export default async function AdminDashboard() {
                       <div>
                         <p className="text-sm font-medium">{b.ceremony.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {b.bookingRef} · {CITIES[b.city as City]?.label} · {format(b.scheduledDate, "d MMM")}
+                          {b.bookingRef} · {b.priest.displayName} ← {b.consumer.name} ({b.consumer.email}{b.contactPhone ? `, ${b.contactPhone}` : ""}) · {CITIES[b.city as City]?.label} · {format(b.scheduledDate, "d MMM")}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <Badge variant={s.variant} className="text-xs">{s.label}</Badge>
-                      <span className="font-semibold text-sm">{formatINR(b.basePrice)}</span>
+                      <span className="font-semibold text-sm">{formatINR(b.totalAmount)}</span>
                     </div>
                   </div>
                 )

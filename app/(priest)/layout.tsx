@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { Flame, LayoutDashboard, CalendarDays, IndianRupee, UserCircle } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
 import { SignOutButton } from "@/components/priest/sign-out-button"
 import { getSessionUser } from "@/lib/supabase/get-session-user"
 

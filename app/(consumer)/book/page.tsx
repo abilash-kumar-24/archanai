@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
-import { BookingWizard } from "@/components/consumer/booking-wizard"
+import { BookingWizard, type BookingPrefill } from "@/components/consumer/booking-wizard"
 import { getSessionUser } from "@/lib/supabase/get-session-user"
-import type { Tradition } from "@/types"
+import type { CeremonyType, City, Tradition } from "@/types"
 
 export const metadata = { title: "Book a Priest" }
 
@@ -11,35 +11,42 @@ export default async function BookPage({
 }: {
   searchParams: Promise<{ priestId?: string; ceremony?: string }>
 }) {
-  const [params, user] = await Promise.all([
-    searchParams,
-    getSessionUser(),
-  ])
+  const [params, user] = await Promise.all([searchParams, getSessionUser()])
 
   if (!user) {
-    redirect(`/login?redirect=/book${params.priestId ? `?priestId=${params.priestId}` : ""}`)
+    const qs = new URLSearchParams()
+    if (params.priestId) qs.set("priestId", params.priestId)
+    if (params.ceremony) qs.set("ceremony", params.ceremony)
+    redirect(`/login?redirect=${encodeURIComponent(`/book?${qs}`)}`)
   }
+  if (!params.priestId) redirect("/browse")
 
-  if (!params.priestId) {
-    redirect("/browse")
-  }
+  const [priest, last] = await Promise.all([
+    prisma.priest.findFirst({
+      where:  { id: params.priestId, isActive: true, verificationStatus: "VERIFIED" },
+      select: {
+        id: true, displayName: true, tradition: true, rating: true, reviewCount: true,
+        serviceCities: true, ceremonies: true, priceRangeMin: true,
+        ceremonyOfferings: { select: { ceremonyType: true, price: true, samagriIncluded: true } },
+      },
+    }),
+    // Saves families retyping everything for a second ceremony.
+    prisma.booking.findFirst({ where: { consumerId: user.id }, orderBy: { createdAt: "desc" } }),
+  ])
+  if (!priest) redirect("/browse")
 
-  const priest = await prisma.priest.findUnique({
-    where:  { id: params.priestId, isActive: true, verificationStatus: "VERIFIED" },
-    select: {
-      id:            true,
-      displayName:   true,
-      tradition:     true,
-      priceRangeMin: true,
-      priceRangeMax: true,
-      rating:        true,
-      reviewCount:   true,
-    },
-  })
+  const offerings = priest.ceremonyOfferings.length
+    ? priest.ceremonyOfferings.map((o) => ({ type: o.ceremonyType as CeremonyType, price: o.price, samagriIncluded: o.samagriIncluded }))
+    : priest.ceremonies.map((c) => ({ type: c as CeremonyType, price: priest.priceRangeMin, samagriIncluded: false })) // legacy rows
 
-  if (!priest) {
-    redirect("/browse")
-  }
+  const fam = (last?.familyDetails ?? {}) as NonNullable<BookingPrefill["family"]>
+  const prefill: BookingPrefill = last
+    ? {
+        contactPhone: last.contactPhone ?? user.phone ?? undefined,
+        city: last.city as City, addressLine1: last.addressLine1, addressLine2: last.addressLine2 ?? undefined, pincode: last.pincode,
+        family: { ...fam, notes: undefined },
+      }
+    : { contactPhone: user.phone ?? undefined, family: { primaryName: user.name === "User" ? "" : user.name } }
 
   return (
     <div className="flex-1 bg-muted/30">
@@ -51,8 +58,13 @@ export default async function BookPage({
           </p>
         </div>
         <BookingWizard
-          priest={{ ...priest, tradition: priest.tradition as Tradition }}
+          priest={{
+            id: priest.id, displayName: priest.displayName, tradition: priest.tradition as Tradition,
+            rating: priest.rating, reviewCount: priest.reviewCount,
+            serviceCities: priest.serviceCities as City[], offerings,
+          }}
           initialCeremony={params.ceremony}
+          prefill={prefill}
         />
       </div>
     </div>

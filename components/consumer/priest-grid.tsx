@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma"
 import { PriestCard } from "@/components/consumer/priest-card"
+import { dayAvailable } from "@/lib/booking/availability"
+import { parseDateOnly, todayIST } from "@/lib/dates"
 import type { City, CeremonyType, Tradition, Language } from "@/types"
 
 interface PriestGridProps {
@@ -10,6 +12,8 @@ interface PriestGridProps {
     language?:  string
     minRating?: string
     maxPrice?:  string
+    sort?:      string
+    date?:      string
   }
 }
 
@@ -46,11 +50,40 @@ export async function PriestGrid({ filters }: PriestGridProps) {
       rating:           true,
       reviewCount:      true,
     },
-    orderBy: [{ foundingPriest: "desc" }, { rating: "desc" }],
+    orderBy:
+      filters.sort === "price_asc"  ? [{ priceRangeMin: "asc" }] :
+      filters.sort === "experience" ? [{ experienceYears: "desc" }] :
+      [{ foundingPriest: "desc" }, { rating: "desc" }],
     take: 50,
   })
 
-  if (priests.length === 0) {
+  // "Available on" filter: drop priests who are blocked, booked, or don't work that weekday.
+  const day = filters.date && parseDateOnly(filters.date) ? filters.date : null
+  let shown = priests
+  if (day) {
+    const dayDate = parseDateOnly(day)!
+    const ids = priests.map((p) => p.id)
+    const [windows, blocked, booked] = await Promise.all([
+      prisma.priestAvailability.findMany({ where: { priestId: { in: ids } } }),
+      prisma.blockedDate.findMany({ where: { priestId: { in: ids }, date: dayDate }, select: { priestId: true } }),
+      prisma.booking.findMany({
+        where: { priestId: { in: ids }, scheduledDate: dayDate, status: { in: ["PENDING", "CONFIRMED", "PRIEST_ACCEPTED"] } },
+        select: { priestId: true },
+      }),
+    ])
+    const blockedIds = new Set(blocked.map((b) => b.priestId))
+    const bookedIds = new Set(booked.map((b) => b.priestId))
+    shown = priests.filter((p) =>
+      dayAvailable({
+        day, today: todayIST(),
+        windows: windows.filter((w) => w.priestId === p.id).map((w) => ({ dayOfWeek: w.dayOfWeek, startTime: w.startTime, endTime: w.endTime })),
+        blocked: blockedIds.has(p.id) ? new Set([day]) : new Set(),
+        booked: bookedIds.has(p.id) ? new Set([day]) : new Set(),
+      })
+    )
+  }
+
+  if (shown.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <span className="text-4xl mb-4">🙏</span>
@@ -65,10 +98,10 @@ export async function PriestGrid({ filters }: PriestGridProps) {
   return (
     <div>
       <p className="text-sm text-muted-foreground mb-4">
-        {priests.length} priest{priests.length !== 1 ? "s" : ""} found
+        {shown.length} priest{shown.length !== 1 ? "s" : ""} found{day ? " available on that date" : ""}
       </p>
       <div className="grid sm:grid-cols-2 gap-4">
-        {priests.map((priest) => (
+        {shown.map((priest) => (
           <PriestCard
             key={priest.id}
             priest={{

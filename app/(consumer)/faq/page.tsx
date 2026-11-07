@@ -9,7 +9,7 @@ export const metadata = {
 const FAQS: { q: string; a: string }[] = [
   {
     q: "How does Archanai find and verify priests?",
-    a: "Every priest on Archanai goes through a manual verification process: a phone call to confirm their identity and background, tradition and sampradaya review, before their profile goes live. We also review their first 3 bookings to ensure quality.",
+    a: "Every priest on Archanai goes through a manual verification process: a phone call to confirm their identity and background, tradition and sampradaya review, before their profile goes live.",
   },
   {
     q: "Do I pay anything through Archanai?",
@@ -21,19 +21,19 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "What happens if the priest cancels?",
-    a: "If a priest cancels within 48 hours of the ceremony, Archanai will work to find a replacement priest of the same tradition within 2 hours. Since no payment is collected through the platform, there's nothing to refund — you simply rebook.",
+    a: "You will be notified by email and can book another priest from the browse page. Since no payment is collected through the platform, there's nothing to refund.",
   },
   {
     q: "What is included in the samagri?",
-    a: "When you choose 'Priest-arranged samagri', the priest sources all required ritual materials and the cost is bundled into the agreed contribution. If you choose 'Self-arranged', we send you a ceremony-specific and tradition-aware checklist after booking so you can purchase the items yourself from your local shop.",
+    a: "When you choose 'Priest-arranged samagri', the priest brings the ritual materials; if there is any extra cost, you agree it directly with the priest. If you choose 'Self-arranged', we send you a ceremony-specific and tradition-aware checklist after booking so you can purchase the items yourself from your local shop.",
   },
   {
     q: "Can I book for a date that's far in advance?",
-    a: "Yes. You can book up to 6 months in advance. This is especially useful for Upanayanam and Seemantham ceremonies which are tied to specific muhurtam dates. The priest will confirm availability when they accept the booking.",
+    a: "Yes. You can request a booking up to a year in advance. This is especially useful for Upanayanam and Seemantham ceremonies which are tied to specific muhurtam dates. The priest accepts or declines each request.",
   },
   {
     q: "What languages do priests offer ceremonies in?",
-    a: "Each priest lists the languages they conduct ceremonies in. Most South Indian Vedic ceremonies are primarily in Sanskrit, but the priest will explain and guide your family in your regional language (Tamil, Telugu, Kannada, or Malayalam).",
+    a: "Each priest lists the languages they conduct ceremonies in. Most South Indian Vedic ceremonies are primarily in Sanskrit, and many priests also explain the rituals in a regional language. Check the languages listed on each priest's profile.",
   },
   {
     q: "Does Archanai charge a platform fee?",
@@ -41,7 +41,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Can a priest decline my booking?",
-    a: "Yes. Priests review booking requests and may decline if they're unavailable on the date or if the ceremony type isn't a good fit. You'll be notified by email within 24 hours.",
+    a: "Yes. Priests review booking requests and may decline if they're unavailable on the date or if the ceremony type isn't a good fit. Priests have 48 hours to respond. If a priest declines or does not reply, you are notified by email and can book someone else.",
   },
   {
     q: "I'm a priest. How do I join?",

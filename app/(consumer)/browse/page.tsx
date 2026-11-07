@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import { Filter, SlidersHorizontal } from "lucide-react"
 import { BrowseFilters } from "@/components/consumer/browse-filters"
 import { PriestGrid } from "@/components/consumer/priest-grid"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -13,6 +12,7 @@ interface BrowsePageProps {
     date?: string
     minRating?: string
     maxPrice?: string
+    sort?: string
   }>
 }
 

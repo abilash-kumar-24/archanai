@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr"
 
 const PRIEST_ROUTES = ["/priest/dashboard", "/priest/calendar", "/priest/earnings", "/priest/profile"]
 const ADMIN_ROUTES  = ["/admin"]
-const AUTH_ROUTES   = ["/login", "/signup"]
+const AUTH_ROUTES   = ["/login"]
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
@@ -37,7 +37,7 @@ export async function proxy(req: NextRequest) {
       url.searchParams.set("redirect", pathname)
       return NextResponse.redirect(url)
     }
-    const role = user.user_metadata?.role as string | undefined
+    const role = user.app_metadata?.role as string | undefined
     if (role !== "PRIEST" && role !== "ADMIN") {
       return NextResponse.redirect(new URL("/", req.url))
     }
@@ -49,7 +49,7 @@ export async function proxy(req: NextRequest) {
       url.searchParams.set("redirect", pathname)
       return NextResponse.redirect(url)
     }
-    const role = user.user_metadata?.role as string | undefined
+    const role = user.app_metadata?.role as string | undefined
     if (role !== "ADMIN") {
       return NextResponse.redirect(new URL("/", req.url))
     }

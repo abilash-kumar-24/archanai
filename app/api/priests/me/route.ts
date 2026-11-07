@@ -1,29 +1,24 @@
+export const dynamic = "force-dynamic"
 import { NextResponse } from "next/server"
 import { z } from "zod"
+import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/supabase/get-session-user"
-import type { Tradition, Language, CeremonyType, City } from "@prisma/client"
+import { deriveFromOfferings, priestProfileSchema, windowSchema } from "@/lib/priest/schema"
 
 export async function GET() {
   const user = await getSessionUser()
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const priest = await prisma.priest.findUnique({ where: { userId: user.id } })
-  return NextResponse.json({ priest })
+  const priest = await prisma.priest.findUnique({
+    where:   { userId: user.id },
+    include: { ceremonyOfferings: true, availability: true, documents: { orderBy: { createdAt: "desc" } } },
+  })
+  return NextResponse.json({ priest, phone: user.phone })
 }
 
-const bodySchema = z.object({
-  displayName:       z.string().min(3),
-  bio:               z.string().min(20),
-  experienceYears:   z.number().int().min(1),
-  tradition:         z.string(),
-  languages:         z.array(z.string()),
-  ceremonies:        z.array(z.string()),
-  cities:            z.array(z.string()),
-  priceRangeMin:     z.number().int().min(500),
-  priceRangeMax:     z.number().int().min(500),
-  travelFeePerKm:    z.number().int().min(0),
-  templeAffiliation: z.string().optional(),
+const bodySchema = priestProfileSchema.extend({
+  availability: z.array(windowSchema).min(1, "Choose at least one working day").max(7).refine((w) => new Set(w.map((x) => x.dayOfWeek)).size === w.length, "Duplicate weekday"),
 })
 
 export async function PUT(req: Request) {
@@ -33,28 +28,39 @@ export async function PUT(req: Request) {
   const priest = await prisma.priest.findUnique({ where: { userId: user.id } })
   if (!priest) return NextResponse.json({ error: "Priest profile not found" }, { status: 404 })
 
-  const body = await req.json()
-  const parsed = bodySchema.safeParse(body)
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 })
-
+  const parsed = bodySchema.safeParse(await req.json().catch(() => null))
+  if (!parsed.success) return NextResponse.json({ error: z.flattenError(parsed.error) }, { status: 422 })
   const d = parsed.data
 
-  const updated = await prisma.priest.update({
-    where: { id: priest.id },
-    data: {
-      displayName:       d.displayName,
-      bio:               d.bio,
-      experienceYears:   d.experienceYears,
-      tradition:         d.tradition as Tradition,
-      languages:         d.languages as Language[],
-      ceremonies:        d.ceremonies as CeremonyType[],
-      serviceCities:     d.cities as City[],
-      priceRangeMin:     d.priceRangeMin,
-      priceRangeMax:     d.priceRangeMax,
-      travelFeePerKm:    d.travelFeePerKm,
-      templeAffiliation: d.templeAffiliation,
-    },
-  })
+  try {
+    await prisma.$transaction([
+      prisma.user.update({ where: { id: user.id }, data: { phone: d.phone } }),
+      prisma.priest.update({
+        where: { id: priest.id },
+        data: {
+          displayName:       d.displayName,
+          bio:               d.bio,
+          experienceYears:   d.experienceYears,
+          tradition:         d.tradition,
+          languages:         d.languages,
+          serviceCities:     d.cities,
+          templeAffiliation: d.templeAffiliation,
+          ...deriveFromOfferings(d.offerings),
+        },
+      }),
+      prisma.priestCeremony.deleteMany({ where: { priestId: priest.id } }),
+      prisma.priestCeremony.createMany({
+        data: d.offerings.map((o) => ({ priestId: priest.id, ceremonyType: o.type, price: o.price, samagriIncluded: o.samagriIncluded, notes: o.notes })),
+      }),
+      prisma.priestAvailability.deleteMany({ where: { priestId: priest.id } }),
+      prisma.priestAvailability.createMany({ data: d.availability.map((w) => ({ ...w, priestId: priest.id })) }),
+    ])
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      return NextResponse.json({ error: "That phone number is already registered" }, { status: 409 })
+    }
+    throw err
+  }
 
-  return NextResponse.json({ priestId: updated.id })
+  return NextResponse.json({ priestId: priest.id })
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils"
 import { CEREMONIES, TRADITIONS, CITIES } from "@/lib/constants"
 import { formatINR } from "@/lib/utils/booking"
+import { addDays, dayOfWeek, todayIST } from "@/lib/dates"
 import { toast } from "sonner"
 import type { City, CeremonyType, SamagriOption, Tradition } from "@/types"
 
@@ -39,7 +40,9 @@ const familySchema = z.object({
 const locationSchema = z.object({
   addressLine1: z.string().min(5, "Address is required"),
   addressLine2: z.string().optional(),
-  pincode:      z.string().length(6, "Enter a valid 6-digit pincode"),
+  pincode:      z.string().regex(/^\d{6}$/, "Enter a valid 6-digit pincode"),
+  contactPhone: z.string().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
+  googleMapsUrl: z.string().url("Paste a full Google Maps link").optional().or(z.literal("")),
 })
 
 type FamilyForm   = z.infer<typeof familySchema>
@@ -55,41 +58,80 @@ export interface BookingPriest {
   id:            string
   displayName:   string
   tradition:     Tradition
-  priceRangeMin: number
-  priceRangeMax: number
+  offerings:     { type: CeremonyType; price: number; samagriIncluded: boolean }[]
+  serviceCities: City[]
   rating:        number
   reviewCount:   number
+}
+
+export interface BookingPrefill {
+  contactPhone?: string
+  city?:         City
+  addressLine1?: string
+  addressLine2?: string
+  pincode?:      string
+  family?:       Partial<FamilyForm>
 }
 
 interface BookingWizardProps {
   priest:          BookingPriest
   initialCeremony?: string
+  prefill?:        BookingPrefill
 }
 
-export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
+type Availability = { windows: { dayOfWeek: number; startTime: string; endTime: string }[]; unavailable: string[] }
+
+export function BookingWizard({ priest, initialCeremony, prefill }: BookingWizardProps) {
   const [step, setStep]                   = useState(0)
   const [selectedCeremony, setSelectedCeremony] = useState<CeremonyType | null>(
-    initialCeremony as CeremonyType | null
+    priest.offerings.some((o) => o.type === initialCeremony) ? (initialCeremony as CeremonyType) : null
   )
   const [selectedDate, setSelectedDate]   = useState<Date | undefined>()
   const [selectedTime, setSelectedTime]   = useState<string | null>(null)
-  const [selectedCity, setSelectedCity]   = useState<City | "">("")
+  const [selectedCity, setSelectedCity]   = useState<City | "">(
+    prefill?.city && priest.serviceCities.includes(prefill.city) ? prefill.city : priest.serviceCities.length === 1 ? priest.serviceCities[0] : ""
+  )
+  const [availability, setAvailability]   = useState<Availability | null>(null)
+  const [availabilityError, setAvailabilityError] = useState(false)
   const [samagriOption, setSamagriOption] = useState<SamagriOption>("SELF_ARRANGED")
   const [isSubmitting, setIsSubmitting]   = useState(false)
   const [bookingRef, setBookingRef]       = useState("")
+  const [bookingId, setBookingId]         = useState("")
 
   const familyForm = useForm<FamilyForm>({
     resolver: zodResolver(familySchema),
-    defaultValues: { primaryName: "" },
+    defaultValues: { primaryName: "", ...prefill?.family },
   })
   const locationForm = useForm<LocationForm>({
     resolver: zodResolver(locationSchema),
-    defaultValues: { addressLine1: "" },
+    defaultValues: {
+      addressLine1: prefill?.addressLine1 ?? "", addressLine2: prefill?.addressLine2 ?? "",
+      pincode: prefill?.pincode ?? "", contactPhone: prefill?.contactPhone ?? "", googleMapsUrl: "",
+    },
   })
+
+  useEffect(() => {
+    fetch(`/api/priests/${priest.id}/availability`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then(setAvailability)
+      .catch(() => setAvailabilityError(true))
+  }, [priest.id])
+
+  const today = todayIST()
+  const unavailable = useMemo(() => new Set(availability?.unavailable ?? []), [availability])
+  const windowFor = (d: Date) => availability?.windows.find((w) => w.dayOfWeek === dayOfWeek(format(d, "yyyy-MM-dd")))
+  const isDateDisabled = (d: Date) => {
+    const key = format(d, "yyyy-MM-dd")
+    if (key < addDays(today, 1) || key > addDays(today, 365) || unavailable.has(key)) return true
+    return !!availability?.windows.length && !windowFor(d)
+  }
+  const dayWindow = selectedDate ? windowFor(selectedDate) : undefined
+  const slots = TIME_SLOTS.filter((t) => !dayWindow || (t >= dayWindow.startTime && t < dayWindow.endTime))
+  const offering = priest.offerings.find((o) => o.type === selectedCeremony)
 
   const canAdvance = () => {
     if (step === 0) return !!selectedCeremony
-    if (step === 1) return !!selectedDate && !!selectedTime && !!selectedCity
+    if (step === 1) return !!selectedDate && !!selectedTime && !!selectedCity && !!availability
     if (step === 2) return true
     if (step === 3) return !!samagriOption
     return true
@@ -112,13 +154,15 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
         body: JSON.stringify({
           priestId:      priest.id,
           ceremonyType:  selectedCeremony,
-          scheduledDate: selectedDate.toISOString(),
+          scheduledDate: format(selectedDate, "yyyy-MM-dd"),
           scheduledTime: selectedTime,
           addressLine1:  locationForm.getValues("addressLine1"),
           addressLine2:  locationForm.getValues("addressLine2"),
           city:          selectedCity,
           pincode:       locationForm.getValues("pincode"),
-          samagriOption,
+          contactPhone:  locationForm.getValues("contactPhone"),
+          googleMapsUrl: locationForm.getValues("googleMapsUrl") || undefined,
+          samagriOption: offering?.samagriIncluded ? "PRIEST_ARRANGED" : samagriOption,
           familyDetails: familyForm.getValues(),
         }),
       })
@@ -133,7 +177,8 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
         return
       }
 
-      const { bookingRef: ref } = await res.json()
+      const { bookingRef: ref, bookingId: id } = await res.json()
+      setBookingId(id)
       setBookingRef(ref)
     } catch {
       toast.error("Something went wrong. Please try again.")
@@ -155,15 +200,15 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
             <span className="font-semibold font-mono text-foreground">{bookingRef}</span>
           </p>
           <p className="text-sm text-muted-foreground">
-            {priest.displayName} has been notified and will confirm within a few hours.
-            You&apos;ll receive an email confirmation once accepted.
+            {priest.displayName} has been notified and has 48 hours to respond. We&apos;ll email you
+            as soon as they accept, along with their contact number.
           </p>
           <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
             <Button variant="outline" onClick={() => { setStep(0); setBookingRef("") }}>
               Book Another
             </Button>
             <Button asChild>
-              <a href="/bookings">View My Bookings</a>
+              <a href={bookingId ? `/bookings/${bookingId}` : "/bookings"}>View Booking</a>
             </Button>
           </div>
         </CardContent>
@@ -211,7 +256,7 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
             <div className="space-y-4">
               <h2 className="font-semibold">Which ceremony are you booking?</h2>
               <div className="grid sm:grid-cols-2 gap-3">
-                {(Object.keys(CEREMONIES) as CeremonyType[]).map((type) => {
+                {priest.offerings.map(({ type, price }) => {
                   const c = CEREMONIES[type]
                   return (
                     <button
@@ -229,7 +274,7 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                         <p className="font-medium text-sm">{c.label}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{c.description}</p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {Math.round(c.durationMin / 60)}–{Math.round(c.durationMax / 60)} hours
+                          {Math.round(c.durationMin / 60)}–{Math.round(c.durationMax / 60)} hours · {formatINR(price)}
                         </p>
                       </div>
                       {selectedCeremony === type && (
@@ -264,8 +309,8 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                       <Calendar
                         mode="single"
                         selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        disabled={(date) => date < new Date()}
+                        onSelect={(d) => { setSelectedDate(d); setSelectedTime(null) }}
+                        disabled={isDateDisabled}
                         initialFocus
                       />
                     </PopoverContent>
@@ -274,8 +319,11 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Start time</Label>
+                  {availabilityError && <p className="text-xs text-destructive">Could not load availability. Please refresh.</p>}
+                  {!selectedDate && <p className="text-xs text-muted-foreground">Pick a date first</p>}
+                  {selectedDate && slots.length === 0 && <p className="text-xs text-muted-foreground">No start times that day</p>}
                   <div className="grid grid-cols-3 gap-1.5 max-h-48 overflow-y-auto">
-                    {TIME_SLOTS.map((t) => (
+                    {(selectedDate ? slots : []).map((t) => (
                       <button
                         key={t}
                         onClick={() => setSelectedTime(t)}
@@ -305,7 +353,7 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                         <SelectValue placeholder="Select city" />
                       </SelectTrigger>
                       <SelectContent>
-                        {(Object.keys(CITIES) as City[]).map((c) => (
+                        {priest.serviceCities.map((c) => (
                           <SelectItem key={c} value={c}>{CITIES[c].label}, {CITIES[c].state}</SelectItem>
                         ))}
                       </SelectContent>
@@ -348,9 +396,20 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                       )}
                     </div>
                     <div>
-                      <Label className="text-sm">Parking available?</Label>
-                      <Input className="mt-1" placeholder="Yes / No / Notes" />
+                      <Label htmlFor="phone" className="text-sm">Your mobile *</Label>
+                      <Input id="phone" className="mt-1" placeholder="9876543210" maxLength={10} inputMode="numeric" {...locationForm.register("contactPhone")} />
+                      {locationForm.formState.errors.contactPhone && (
+                        <p className="text-xs text-destructive mt-1">{locationForm.formState.errors.contactPhone.message}</p>
+                      )}
                     </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="maps" className="text-sm">Google Maps link</Label>
+                    <Input id="maps" className="mt-1" placeholder="https://maps.app.goo.gl/… (optional, helps the priest find you)" {...locationForm.register("googleMapsUrl")} />
+                    {locationForm.formState.errors.googleMapsUrl && (
+                      <p className="text-xs text-destructive mt-1">{locationForm.formState.errors.googleMapsUrl.message}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-1">Your number is shared with the priest only after they accept.</p>
                   </div>
                 </div>
               </div>
@@ -439,7 +498,14 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                 </p>
               </div>
 
+              {offering?.samagriIncluded && (
+                <div className="rounded-xl border border-primary bg-primary/5 p-4 text-sm">
+                  <span className="font-medium">Included by the priest</span>
+                  <p className="text-muted-foreground mt-1">{priest.displayName} brings the materials for this ceremony. Agree any details with them directly.</p>
+                </div>
+              )}
               <RadioGroup
+                hidden={!!offering?.samagriIncluded}
                 value={samagriOption}
                 onValueChange={(v: string) => setSamagriOption(v as SamagriOption)}
                 className="space-y-3"
@@ -448,7 +514,7 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                   {
                     value: "PRIEST_ARRANGED" as const,
                     label: "Priest arranges everything",
-                    desc:  "Your priest will source all materials and bring them. Agree the additional cost directly with the priest.",
+                    desc:  "Your priest will source all materials and bring them. Agree any additional cost directly with the priest.",
                     badge: "Easiest",
                   },
                   {
@@ -486,7 +552,7 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                   requires approximately 15–25 items depending on your tradition.
                   {samagriOption === "SELF_ARRANGED" && (
                     <span className="block mt-1 text-primary text-xs">
-                      ✓ A detailed samagri checklist will be sent to your email after the priest confirms.
+                      ✓ A detailed samagri checklist will be emailed to you after the priest confirms.
                     </span>
                   )}
                 </div>
@@ -526,18 +592,18 @@ export function BookingWizard({ priest, initialCeremony }: BookingWizardProps) {
                 )}
                 <div className="p-4 flex justify-between">
                   <span className="text-muted-foreground">Samagri</span>
-                  <span>{samagriOption === "PRIEST_ARRANGED" ? "Priest-arranged" : "Self-arranged (checklist)"}</span>
+                  <span>{offering?.samagriIncluded || samagriOption === "PRIEST_ARRANGED" ? "Priest-arranged" : "Self-arranged (checklist)"}</span>
                 </div>
               </div>
 
               <div className="rounded-xl bg-accent/30 p-4 text-sm space-y-2">
                 <p className="font-medium">Contribution</p>
                 <p className="text-muted-foreground">
-                  This priest&apos;s typical range is{" "}
+                  This priest asks{" "}
                   <span className="font-semibold text-foreground">
-                    {formatINR(priest.priceRangeMin)} – {formatINR(priest.priceRangeMax)}
+                    {offering ? formatINR(offering.price) : "—"}
                   </span>
-                  . Archanai doesn&apos;t collect any payment — you settle the full amount directly with the priest.
+                  {" "}for this ceremony. Archanai doesn&apos;t collect any payment — you settle the full amount directly with the priest.
                 </p>
               </div>
 

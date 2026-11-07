@@ -2,7 +2,6 @@ import { redirect } from "next/navigation"
 import { format, subMonths, startOfMonth, endOfMonth } from "date-fns"
 import { IndianRupee, TrendingUp, CalendarDays } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/supabase/get-session-user"
 import { CEREMONIES } from "@/lib/constants"
@@ -10,6 +9,9 @@ import { formatINR } from "@/lib/utils/booking"
 import type { CeremonyType } from "@/types"
 
 export const metadata = { title: "Earnings — Archanai" }
+
+// What the priest recorded as received; falls back to the agreed price for older bookings.
+const received = (b: { amountReceived: number | null; basePrice: number }) => b.amountReceived ?? b.basePrice
 
 export default async function EarningsPage() {
   const user = await getSessionUser()
@@ -32,12 +34,12 @@ export default async function EarningsPage() {
     const inMonth = completedBookings.filter(
       (b) => b.scheduledDate >= start && b.scheduledDate <= end
     )
-    const gross = inMonth.reduce((s, b) => s + b.basePrice, 0)
+    const gross = inMonth.reduce((s, b) => s + received(b), 0)
     return { month: m, bookings: inMonth.length, gross }
   })
 
   const totalBookings   = completedBookings.length
-  const totalGross      = completedBookings.reduce((s, b) => s + b.basePrice, 0)
+  const totalGross      = completedBookings.reduce((s, b) => s + received(b), 0)
   const avgPerCeremony  = totalBookings ? Math.round(totalGross / totalBookings) : 0
   const thisMonthGross  = monthly.at(-1)!.gross
   const maxGross        = Math.max(...monthly.map((m) => m.gross), 1)
@@ -111,7 +113,7 @@ export default async function EarningsPage() {
                       </p>
                     </div>
                   </div>
-                  <p className="text-sm font-semibold">{formatINR(b.basePrice)}</p>
+                  <p className="text-sm font-semibold">{formatINR(received(b))}</p>
                 </div>
               )
             })}

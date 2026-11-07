@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { CITIES, CEREMONIES, TRADITIONS, LANGUAGES } from "@/lib/constants"
+import { addDays, todayIST } from "@/lib/dates"
 import type { City, CeremonyType, Tradition, Language } from "@/types"
 
 interface BrowseFiltersProps {
@@ -57,7 +58,11 @@ function FilterPanel({
     onClose?.()
   }
 
-  const hasFilters = city || ceremony || tradition || language
+  const minRating = searchParams.get("minRating")
+  const maxPrice = searchParams.get("maxPrice")
+  const sort     = searchParams.get("sort")
+  const date     = searchParams.get("date")
+  const hasFilters = city || ceremony || tradition || language || minRating || maxPrice || sort || date
 
   return (
     <div className="space-y-6">
@@ -66,6 +71,58 @@ function FilterPanel({
           <X className="h-3 w-3 mr-1" /> Clear all filters
         </Button>
       )}
+
+      {/* Available on */}
+      <div>
+        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3 block">Available on</Label>
+        <input
+          type="date"
+          min={addDays(todayIST(), 1)}
+          className="w-full h-8 rounded-md border border-border bg-background px-2 text-sm"
+          value={date ?? ""}
+          onChange={(e) => updateFilter("date", e.target.value || null)}
+        />
+      </div>
+
+      {/* Sort */}
+      <div>
+        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3 block">Sort by</Label>
+        <select
+          className="w-full h-8 rounded-md border border-border bg-background px-2 text-sm"
+          value={sort ?? ""}
+          onChange={(e) => updateFilter("sort", e.target.value || null)}
+        >
+          <option value="">Top rated</option>
+          <option value="price_asc">Price: low to high</option>
+          <option value="experience">Most experienced</option>
+        </select>
+      </div>
+
+      {/* Rating + budget */}
+      <div className="space-y-3">
+        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground block">Min rating</Label>
+        <select
+          className="w-full h-8 rounded-md border border-border bg-background px-2 text-sm"
+          value={minRating ?? ""}
+          onChange={(e) => updateFilter("minRating", e.target.value || null)}
+        >
+          <option value="">Any</option>
+          <option value="4.5">4.5+</option>
+          <option value="4">4.0+</option>
+          <option value="3">3.0+</option>
+        </select>
+        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground block pt-1">Max price (₹)</Label>
+        <select
+          className="w-full h-8 rounded-md border border-border bg-background px-2 text-sm"
+          value={maxPrice ?? ""}
+          onChange={(e) => updateFilter("maxPrice", e.target.value || null)}
+        >
+          <option value="">Any</option>
+          <option value="2000">Up to 2,000</option>
+          <option value="5000">Up to 5,000</option>
+          <option value="10000">Up to 10,000</option>
+        </select>
+      </div>
 
       {/* City */}
       <div>

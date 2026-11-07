@@ -1,8 +1,7 @@
 import { config } from "dotenv"
 config({ path: ".env.local" })
-import { PrismaClient, CeremonyType, Tradition, Language, City } from "@prisma/client"
+import { PrismaClient, CeremonyType } from "@prisma/client"
 import { PrismaPg } from "@prisma/adapter-pg"
-import { hash } from "crypto"
 
 const adapter = new PrismaPg({ connectionString: process.env.DIRECT_URL })
 const prisma = new PrismaClient({ adapter })

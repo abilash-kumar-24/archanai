@@ -2,8 +2,17 @@ export const dynamic = "force-dynamic"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/supabase/get-session-user"
-import { sendCeremonyReminder, sendCancellationNotice } from "@/lib/resend/emails"
+import { sendBookingConfirmation, sendCancellationNotice, sendSamagriChecklist } from "@/lib/resend/emails"
+import { getSamagriList } from "@/lib/samagri/data"
+import { notify } from "@/lib/notify"
 import { format } from "date-fns"
+import { z } from "zod"
+import type { Tradition } from "@/types"
+
+const bodySchema = z.object({
+  action: z.enum(["accept", "decline"]),
+  notes:  z.string().max(1000).optional(),
+})
 
 // Priest accepts or declines a booking
 export async function POST(
@@ -14,17 +23,16 @@ export async function POST(
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { id } = await params
-  const body = await req.json()
-  const { action, notes } = body as { action: "accept" | "decline"; notes?: string }
+  const parsed = bodySchema.safeParse(await req.json().catch(() => null))
+  if (!parsed.success) return NextResponse.json({ error: "Invalid action" }, { status: 400 })
+  const { action, notes } = parsed.data
 
-  if (!["accept", "decline"].includes(action)) {
-    return NextResponse.json({ error: "Invalid action" }, { status: 400 })
-  }
-
-  // Verify the booking belongs to this priest
   const existing = await prisma.booking.findUnique({ where: { id }, include: { priest: true } })
   if (!existing || existing.priest.userId !== user.id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  }
+  if (existing.status !== "PENDING") {
+    return NextResponse.json({ error: `Booking already ${existing.status}` }, { status: 409 })
   }
 
   try {
@@ -33,29 +41,38 @@ export async function POST(
       data: {
         status:      action === "accept" ? "PRIEST_ACCEPTED" : "CANCELLED_PRIEST",
         priestNotes: notes,
-        ...(action === "decline" && { cancellationReason: notes }),
+        ...(action === "accept" ? { confirmedAt: new Date() } : { cancellationReason: notes }),
       },
-      include: {
-        consumer: true,
-        priest:   true,
-        ceremony: true,
-      },
+      include: { consumer: true, priest: { include: { user: true } }, ceremony: true },
     })
 
+    const date = format(booking.scheduledDate, "d MMMM yyyy")
+    const address = `${booking.addressLine1}, ${booking.city}`
+
     if (action === "accept") {
-      sendCeremonyReminder(booking.consumer.email, {
-        name:         booking.consumer.name,
-        ceremonyName: booking.ceremony.name,
-        date:         format(booking.scheduledDate, "d MMMM yyyy"),
-        time:         booking.scheduledTime,
-        address:      `${booking.addressLine1}, ${booking.city}`,
+      notify(booking.consumerId, {
+        type: "BOOKING_ACCEPTED", title: "Booking confirmed",
+        body: `${booking.priest.displayName} accepted your ${booking.ceremony.name} on ${date}`, href: `/bookings/${id}`,
+      })
+      sendBookingConfirmation(booking.consumer.email, {
+        consumerName: booking.consumer.name, bookingRef: booking.bookingRef, ceremonyName: booking.ceremony.name,
+        priestName: booking.priest.displayName, priestPhone: booking.priest.user.phone,
+        date, time: booking.scheduledTime, address,
       }).catch(console.error)
+      if (booking.samagriOption === "SELF_ARRANGED") {
+        sendSamagriChecklist(booking.consumer.email, {
+          name: booking.consumer.name, ceremonyName: booking.ceremony.name,
+          items: getSamagriList(booking.ceremony.type, booking.priest.tradition as Tradition),
+        }).catch(console.error)
+      }
     } else {
+      notify(booking.consumerId, {
+        type: "BOOKING_DECLINED", title: "Booking declined",
+        body: `${booking.priest.displayName} could not take your ${booking.ceremony.name} on ${date}`, href: `/bookings/${id}`,
+      })
       sendCancellationNotice(booking.consumer.email, {
-        name:         booking.consumer.name,
-        bookingRef:   booking.bookingRef,
-        ceremonyName: booking.ceremony.name,
-        reason:       "The priest is unavailable on this date.",
+        name: booking.consumer.name, bookingRef: booking.bookingRef, ceremonyName: booking.ceremony.name,
+        reason: notes || "The priest is unavailable on this date.",
       }).catch(console.error)
     }
 

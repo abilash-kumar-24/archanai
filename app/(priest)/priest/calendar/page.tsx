@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/supabase/get-session-user"
 import { CalendarView } from "./calendar-view"
+import { toDateOnly } from "@/lib/dates"
 
 export const metadata = { title: "Calendar — Archanai" }
 
@@ -28,10 +29,9 @@ export default async function CalendarPage() {
 
   return (
     <CalendarView
-      priestId={priest.id}
       bookings={bookings.map((b) => ({
         id:           b.id,
-        date:         b.scheduledDate.toISOString(),
+        date:         toDateOnly(b.scheduledDate),
         ceremonyType: b.ceremony.type,
         ceremonyName: b.ceremony.name,
         consumer:     b.consumer.name,
@@ -39,7 +39,7 @@ export default async function CalendarPage() {
       }))}
       initialBlocked={blockedDates.map((d) => ({
         id:   d.id,
-        date: d.date.toISOString(),
+        date: toDateOnly(d.date),
       }))}
     />
   )

@@ -14,7 +14,7 @@ export function Footer() {
               <span className="font-semibold text-primary">Archanai</span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Trusted priests for every ceremony. Verified, transparent, and always there for your family.
+              Trusted priests for every ceremony. Verified and transparent.
             </p>
           </div>
 

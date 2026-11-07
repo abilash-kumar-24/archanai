@@ -3,6 +3,7 @@ import { MapPin, Shield, Star, Clock, ChevronRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Navbar } from "@/components/shared/navbar"
+import { getSessionUser } from "@/lib/supabase/get-session-user"
 import { Footer } from "@/components/shared/footer"
 import { Reveal } from "@/components/shared/reveal"
 import { Flame } from "@/components/shared/flame"
@@ -23,8 +24,8 @@ const FEATURED_CITIES: City[] = ["CHENNAI", "BANGALORE", "HYDERABAD", "COCHIN", 
 
 const TRUST_POINTS = [
   { icon: Shield, title: "Identity Verified", desc: "Every priest is verified by phone before onboarding" },
-  { icon: Star, title: "Family Reviews", desc: "Real reviews from families, with ceremony photos" },
-  { icon: Clock, title: "On-Time Guarantee", desc: "Priest cancellation? We find a replacement within 2 hours" },
+  { icon: Star, title: "Family Reviews", desc: "Only families who completed a ceremony can review a priest" },
+  { icon: Clock, title: "Quick Replies", desc: "Priests respond within 48 hours, or your request is released so you can book someone else" },
   { icon: MapPin, title: "Tradition Matched", desc: "Sampradaya and language matched to your family" },
 ]
 
@@ -35,37 +36,11 @@ const HOW_IT_WORKS = [
   { step: "04", title: "Ceremony day", desc: "Priest arrives prepared with your family details. You just be present." },
 ]
 
-const TESTIMONIALS = [
-  {
-    name: "Priya Subramaniam",
-    city: "Chennai",
-    ceremony: "Griha Pravesh",
-    rating: 5,
-    body: "Pandit Venkatesh arrived 15 minutes early with all the samagri. The puja was conducted beautifully in Tamil with Sanskrit shlokas. Our family was deeply moved.",
-    tradition: "Iyer (Smartha)",
-  },
-  {
-    name: "Ramesh Naidu",
-    city: "Hyderabad",
-    ceremony: "Upanayanam",
-    rating: 5,
-    body: "The entire Upanayanam was flawless. The priest took time to explain each ritual to my son in Telugu. Archanai made a complex ceremony feel effortless.",
-    tradition: "Telugu Vaidiki",
-  },
-  {
-    name: "Anitha Krishnaswamy",
-    city: "Bangalore",
-    ceremony: "Namakarana",
-    rating: 5,
-    body: "Booking was so easy. The priest received all our family details in advance — no scrambling on the day. Will definitely use Archanai again.",
-    tradition: "Iyengar (Sri Vaishnava)",
-  },
-]
-
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await getSessionUser()
   return (
     <div className="flex flex-col min-h-full">
-      <Navbar />
+      <Navbar user={user ? { name: user.name, role: user.role } : null} />
 
       {/* Hero — the lamp that opens every ceremony */}
       <section className="dusk-section relative overflow-hidden">
@@ -80,7 +55,7 @@ export default function HomePage() {
             </h1>
             <p className="text-lg text-[#f2ead9]/70 leading-relaxed mb-8 max-w-xl mx-auto">
               Verified Hindu priests across Chennai, Bangalore, Hyderabad, Cochin and Amaravati.
-              Tradition-matched, transparent pricing, and always prepared.
+              Tradition-matched, and transparent pricing.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
@@ -211,41 +186,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 bg-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Reveal className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight mb-2">Families love Archanai</h2>
-            <p className="text-muted-foreground">Real reviews from real ceremonies</p>
-          </Reveal>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {TESTIMONIALS.map((t, i) => (
-              <Reveal key={t.name} delay={i * 100}>
-                <Card className="border-border shadow-none hover:shadow-md transition-shadow">
-                  <CardContent className="pt-6 flex flex-col gap-4">
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: t.rating }).map((_, j) => (
-                        <Star key={j} className="h-4 w-4 fill-primary text-primary" />
-                      ))}
-                    </div>
-                    <p className="text-sm leading-relaxed text-foreground/80">&ldquo;{t.body}&rdquo;</p>
-                    <div className="flex items-center gap-2 pt-1 border-t border-border">
-                      <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center text-sm font-medium text-primary">
-                        {t.name[0]}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">{t.name}</p>
-                        <p className="text-xs text-muted-foreground">{t.ceremony} · {t.city}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Samagri section */}
       <section className="py-16 bg-secondary/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -304,7 +244,7 @@ export default function HomePage() {
             Are you a priest?
           </h2>
           <p className="text-[#f2ead9]/70 mb-6 max-w-xl mx-auto leading-relaxed">
-            Join as a Founding Priest — zero commission, ever, a permanent badge on your profile, and access to hundreds of families in your city.
+            Join as a Founding Priest — zero commission, ever, a permanent badge on your profile, and families who can book you directly.
           </p>
           <Button size="lg" asChild>
             <Link href="/priest/register">

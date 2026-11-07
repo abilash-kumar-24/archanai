@@ -8,7 +8,9 @@ import type { UserRole } from "@prisma/client"
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = req.nextUrl
   const code     = searchParams.get("code")
-  const redirect = searchParams.get("redirect") ?? "/"
+  // Only same-site paths: "//host" and "@host" tricks would turn this into an open redirect.
+  const requested = searchParams.get("redirect") ?? "/"
+  const redirect = requested.startsWith("/") && !requested.startsWith("//") && !requested.includes("@") ? requested : "/"
 
   if (code) {
     const cookieStore = await cookies()
@@ -28,7 +30,7 @@ export async function GET(req: NextRequest) {
     const { data: { user } } = await supabase.auth.exchangeCodeForSession(code)
 
     if (user) {
-      const role = (user.user_metadata?.role as UserRole | undefined) ?? "CONSUMER"
+      const role = (user.app_metadata?.role as UserRole | undefined) ?? "CONSUMER"
       // Derive a display name: Google provides full_name, magic-link users get their email prefix
       const name =
         user.user_metadata?.full_name ??
@@ -37,7 +39,7 @@ export async function GET(req: NextRequest) {
         "User"
       await prisma.user.upsert({
         where:  { supabaseId: user.id },
-        update: { name },
+        update: { name }, // role is never overwritten here
         create: {
           supabaseId: user.id,
           email:      user.email ?? `${user.id}@unknown.local`,

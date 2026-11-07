@@ -33,7 +33,7 @@ export default async function BookingsPage() {
 
   const bookings = await prisma.booking.findMany({
     where:   { consumerId: user.id },
-    include: { ceremony: true, priest: true },
+    include: { ceremony: true, priest: true, review: { select: { id: true } } },
     orderBy: { scheduledDate: "asc" },
   })
 
@@ -93,7 +93,7 @@ export default async function BookingsPage() {
               <EmptyState tab="past" />
             ) : (
               past.map((b) => {
-                const hasReview = false // extend later with b.review check
+                const hasReview = !!b.review
                 return (
                   <BookingCard
                     key={b.id}
@@ -179,9 +179,7 @@ function BookingCard({
               </Button>
             )}
             <Button size="sm" variant="ghost" className="h-7 text-xs" asChild>
-              <Link href={`/bookings/${id}`}>
-                Details <ChevronRight className="h-3 w-3 ml-0.5" />
-              </Link>
+              <Link href={`/bookings/${id}`}>Details <ChevronRight className="h-3 w-3 ml-0.5" /></Link>
             </Button>
           </div>
         </div>

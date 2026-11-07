@@ -4,6 +4,7 @@ export interface SamagriItemData {
   name: string
   nameTamil?: string
   nameTelugu?: string
+  nameMalayalam?: string
   quantity: string
   notes?: string
   isOptional?: boolean
@@ -39,7 +40,7 @@ export const SAMAGRI_DATA: SamagriMap = {
       { name: "Vibhuti (sacred ash)", nameTamil: "திருநீறு", quantity: "50g" },
     ],
     NAMBOODIRI: [
-      { name: "Nilavilakku (traditional lamp)", nameMalayalam: "നിലവിളക്ക്", quantity: "1 no" } as any,
+      { name: "Nilavilakku (traditional lamp)", nameMalayalam: "നിലവിളക്ക്", quantity: "1 no" },
       { name: "Tulsi (Holy Basil) plant", quantity: "1 no" },
     ],
   },

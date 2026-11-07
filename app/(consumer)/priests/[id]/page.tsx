@@ -10,11 +10,13 @@ import { FlameBadge } from "@/components/shared/flame-badge"
 import { TRADITIONS, LANGUAGES, CEREMONIES, CITIES } from "@/lib/constants"
 import { formatINR } from "@/lib/utils/booking"
 import { prisma } from "@/lib/prisma"
+import { getSessionUser } from "@/lib/supabase/get-session-user"
+import { FavoriteButton } from "@/components/consumer/favorite-button"
 import type { CeremonyType, City, Language, Tradition } from "@/types"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const priest = await prisma.priest.findUnique({ where: { id }, select: { displayName: true } })
+  const priest = await prisma.priest.findFirst({ where: { id, isActive: true, verificationStatus: "VERIFIED" }, select: { displayName: true } })
   return { title: priest?.displayName ?? "Priest Profile" }
 }
 
@@ -25,9 +27,10 @@ export default async function PriestProfilePage({
 }) {
   const { id } = await params
 
-  const [priest, reviews] = await Promise.all([
-    prisma.priest.findUnique({
-      where: { id, isActive: true },
+  const user = await getSessionUser()
+  const [priest, reviews, saved] = await Promise.all([
+    prisma.priest.findFirst({
+      where: { id, isActive: true, verificationStatus: "VERIFIED" }, // unverified/paused profiles are not public
       select: {
         id:               true,
         displayName:      true,
@@ -48,6 +51,7 @@ export default async function PriestProfilePage({
         rating:           true,
         reviewCount:      true,
         verificationStatus: true,
+        ceremonyOfferings: { select: { ceremonyType: true, price: true, samagriIncluded: true } },
       },
     }),
     prisma.review.findMany({
@@ -56,6 +60,7 @@ export default async function PriestProfilePage({
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
+    user ? prisma.favorite.findUnique({ where: { userId_priestId: { userId: user.id, priestId: id } } }) : null,
   ])
 
   if (!priest) notFound()
@@ -146,6 +151,7 @@ export default async function PriestProfilePage({
               <div className="grid sm:grid-cols-2 gap-3">
                 {(priest.ceremonies as CeremonyType[]).map((c) => {
                   const ceremony = CEREMONIES[c]
+                  const offer = priest.ceremonyOfferings.find((o) => o.ceremonyType === c)
                   return (
                     <div key={c} className="flex items-center gap-3 rounded-lg border border-border p-3">
                       <span className="text-2xl">{ceremony.emoji}</span>
@@ -153,6 +159,7 @@ export default async function PriestProfilePage({
                         <p className="text-sm font-medium">{ceremony.label}</p>
                         <p className="font-mono tabular text-xs text-muted-foreground">
                           {Math.round(ceremony.durationMin / 60)}–{Math.round(ceremony.durationMax / 60)} hours
+                          {offer && ` · ${formatINR(offer.price)}${offer.samagriIncluded ? " incl. samagri" : ""}`}
                         </p>
                       </div>
                     </div>
@@ -258,7 +265,7 @@ export default async function PriestProfilePage({
                       "No platform fee — 100% free",
                       "Priest notified immediately",
                       "Confirmation via email",
-                      "Samagri checklist included",
+                      "Samagri checklist by email",
                     ].map((point) => (
                       <div key={point} className="flex items-center gap-2 text-sm">
                         <Check className="h-4 w-4 text-primary shrink-0" />
@@ -267,6 +274,7 @@ export default async function PriestProfilePage({
                     ))}
                   </div>
 
+                  <FavoriteButton priestId={priest.id} initial={!!saved} signedIn={!!user} />
                   <Button className="w-full" size="lg" asChild>
                     <Link href={`/book?priestId=${priest.id}`}>
                       Book {priest.displayName.split(" ")[0]}

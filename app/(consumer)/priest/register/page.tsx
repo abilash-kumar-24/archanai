@@ -23,15 +23,11 @@ const STEPS = ["Personal Info", "Tradition & Skills", "Service Area & Pricing", 
 const step1Schema = z.object({
   displayName:    z.string().min(3, "Full name required"),
   phone:          z.string().regex(/^[6-9]\d{9}$/, "Valid 10-digit number required"),
-  email:          z.string().email("Valid email required"),
   experienceYears: z.coerce.number().min(1).max(60),
   bio:            z.string().min(50, "Write at least 50 characters about your background"),
 })
 
 const step3Schema = z.object({
-  priceRangeMin: z.coerce.number().min(500),
-  priceRangeMax: z.coerce.number().min(500),
-  travelFeePerKm: z.coerce.number().min(0).max(50),
   templeAffiliation: z.string().optional(),
 })
 
@@ -48,11 +44,15 @@ export default function PriestRegisterPage() {
   const [submitted, setSubmitted]     = useState(false)
   const [submitting, setSubmitting]   = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [prices, setPrices]         = useState<Record<string, string>>({})
+  const [samagri, setSamagri]         = useState<Record<string, boolean>>({})
+  const [agreed, setAgreed]           = useState(false)
+  const pricesValid = ceremonies.every((c) => Number(prices[c]) >= 100)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form1 = useForm<Step1>({ resolver: zodResolver(step1Schema) as any })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const form3 = useForm<Step3>({ resolver: zodResolver(step3Schema) as any, defaultValues: { travelFeePerKm: 10 } })
+  const form3 = useForm<Step3>({ resolver: zodResolver(step3Schema) as any })
 
   const toggle = <T,>(arr: T[], val: T, set: (a: T[]) => void) => {
     set(arr.includes(val) ? arr.filter((x) => x !== val) : [...arr, val])
@@ -64,7 +64,7 @@ export default function PriestRegisterPage() {
     if (step === 1) {
       if (!tradition || !languages.length || !ceremonies.length) return
     }
-    if (step === 2 && !cities.length) return
+    if (step === 2 && (!cities.length || !pricesValid)) return
     setStep((s) => s + 1)
   }
 
@@ -74,7 +74,8 @@ export default function PriestRegisterPage() {
     if (!tradition || !languages.length || !ceremonies.length) { setStep(1); return }
     const ok3 = await form3.trigger()
     if (!ok3) { setStep(2); return }
-    if (!cities.length) { setStep(2); return }
+    if (!cities.length || !pricesValid) { setStep(2); return }
+    if (!agreed) { setSubmitError("Please accept the Terms and Privacy Policy"); return }
 
     setSubmitting(true)
     setSubmitError(null)
@@ -90,17 +91,15 @@ export default function PriestRegisterPage() {
           experienceYears:   Number(step1Data.experienceYears),
           tradition,
           languages,
-          ceremonies,
           cities,
-          priceRangeMin:     Number(step3Data.priceRangeMin),
-          priceRangeMax:     Number(step3Data.priceRangeMax),
-          travelFeePerKm:    Number(step3Data.travelFeePerKm),
-          templeAffiliation: step3Data.templeAffiliation,
+          phone:             step1Data.phone,
+          offerings:         ceremonies.map((c) => ({ type: c, price: Number(prices[c]), samagriIncluded: !!samagri[c] })),
+          templeAffiliation: step3Data.templeAffiliation || undefined,
         }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        throw new Error(err.error ?? "Registration failed")
+        throw new Error(typeof err.error === "string" ? err.error : "Please check your details and try again")
       }
       setSubmitted(true)
       router.refresh()
@@ -120,12 +119,13 @@ export default function PriestRegisterPage() {
           </div>
           <h2 className="text-xl font-semibold">Application submitted!</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
-            Thank you for joining Archanai. Our team will review your application and verify your details within
-            2–3 business days. You'll receive an SMS once your profile is approved.
+            Thank you for joining Archanai. Our team will call you to verify your details, usually within 2–3
+            business days, and email you once your profile is approved. Meanwhile, add your photo, weekly
+            schedule and any documents you would like to share.
           </p>
           <Badge variant="secondary" className="mx-auto">⭐ Founding Priest status applied</Badge>
           <Button asChild className="mt-4">
-            <Link href="/">Return to Home</Link>
+            <Link href="/priest/profile">Complete your profile</Link>
           </Button>
         </div>
       </div>
@@ -187,11 +187,6 @@ export default function PriestRegisterPage() {
                       <Input className="rounded-l-none" placeholder="9876543210" maxLength={10} {...form1.register("phone")} />
                     </div>
                     {form1.formState.errors.phone && <p className="text-xs text-destructive mt-1">{form1.formState.errors.phone.message}</p>}
-                  </div>
-                  <div>
-                    <Label className="text-sm">Email address *</Label>
-                    <Input className="mt-1" type="email" placeholder="pandit@example.com" {...form1.register("email")} />
-                    {form1.formState.errors.email && <p className="text-xs text-destructive mt-1">{form1.formState.errors.email.message}</p>}
                   </div>
                   <div>
                     <Label className="text-sm">Years of experience *</Label>
@@ -278,25 +273,25 @@ export default function PriestRegisterPage() {
                   {!cities.length && <p className="text-xs text-destructive mt-1">Select at least one city</p>}
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm">Suggested min contribution (₹) *</Label>
-                    <Input className="mt-1" type="number" min={500} placeholder="2500" {...form3.register("priceRangeMin")} />
-                    {form3.formState.errors.priceRangeMin && <p className="text-xs text-destructive mt-1">{form3.formState.errors.priceRangeMin.message}</p>}
-                  </div>
-                  <div>
-                    <Label className="text-sm">Suggested max contribution (₹) *</Label>
-                    <Input className="mt-1" type="number" min={500} placeholder="8000" {...form3.register("priceRangeMax")} />
-                    {form3.formState.errors.priceRangeMax && <p className="text-xs text-destructive mt-1">{form3.formState.errors.priceRangeMax.message}</p>}
-                  </div>
-                  <div>
-                    <Label className="text-sm">Travel fee per km (₹)</Label>
-                    <Input className="mt-1" type="number" min={0} placeholder="10" {...form3.register("travelFeePerKm")} />
-                  </div>
-                  <div>
-                    <Label className="text-sm">Temple / Math affiliation</Label>
-                    <Input className="mt-1" placeholder="e.g. Kapaleeshwarar Temple" {...form3.register("templeAffiliation")} />
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium block">Your contribution per ceremony (₹) *</Label>
+                  {ceremonies.map((c) => (
+                    <div key={c} className="flex items-center gap-3">
+                      <span className="flex-1 text-sm">{CEREMONIES[c].emoji} {CEREMONIES[c].label}</span>
+                      <Input className="w-28" type="number" min={100} placeholder="2500" value={prices[c] ?? ""}
+                        onChange={(e) => setPrices((p) => ({ ...p, [c]: e.target.value }))} />
+                      <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Checkbox checked={!!samagri[c]} onCheckedChange={(v) => setSamagri((p) => ({ ...p, [c]: v === true }))} /> Samagri incl.
+                      </label>
+                    </div>
+                  ))}
+                  {!pricesValid && <p className="text-xs text-destructive">Enter a price (at least ₹100) for every ceremony</p>}
+                  <p className="text-xs text-muted-foreground">Families pay you directly. You can change these any time from your profile.</p>
+                </div>
+
+                <div>
+                  <Label className="text-sm">Temple / Math affiliation</Label>
+                  <Input className="mt-1" placeholder="e.g. Kapaleeshwarar Temple" {...form3.register("templeAffiliation")} />
                 </div>
 
                 <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
@@ -311,8 +306,8 @@ export default function PriestRegisterPage() {
               <>
                 <h2 className="font-semibold">Verification call</h2>
                 <p className="text-sm text-muted-foreground">
-                  We don&apos;t collect ID documents online. Once you submit, our team will call you at the
-                  mobile number you provided to verify your identity and background before your profile goes live.
+                  Once you submit, our team will call you at the
+                  mobile number you provided to verify your identity and background before your profile goes live. You can optionally upload documents from your profile afterwards.
                 </p>
 
                 <div className="flex items-center gap-4 rounded-xl border border-border/60 p-4">
@@ -321,12 +316,12 @@ export default function PriestRegisterPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium">We&apos;ll call to verify</p>
-                    <p className="text-xs text-muted-foreground">Usually within 2–3 business days. No documents needed from you.</p>
+                    <p className="text-xs text-muted-foreground">Usually within 2–3 business days. Documents are optional.</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-2 mt-2">
-                  <Checkbox id="agree" className="mt-0.5" />
+                  <Checkbox id="agree" className="mt-0.5" checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} />
                   <label htmlFor="agree" className="text-sm text-muted-foreground cursor-pointer">
                     I confirm that the information provided is accurate and I agree to Archanai&apos;s{" "}
                     <Link href="/terms" className="text-primary underline">Terms of Service</Link> and{" "}

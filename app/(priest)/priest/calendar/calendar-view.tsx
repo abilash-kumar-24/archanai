@@ -3,8 +3,9 @@
 import { useState } from "react"
 import {
   format, startOfMonth, endOfMonth, eachDayOfInterval,
-  isSameDay, isToday, addMonths, subMonths, parseISO,
+  isSameDay, isToday, addMonths, subMonths,
 } from "date-fns"
+import { toast } from "sonner"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -24,11 +25,9 @@ type Booking = {
 type BlockedDate = { id: string; date: string }
 
 export function CalendarView({
-  priestId,
   bookings,
   initialBlocked,
 }: {
-  priestId:        string
   bookings:        Booking[]
   initialBlocked:  BlockedDate[]
 }) {
@@ -42,11 +41,10 @@ export function CalendarView({
   const days     = eachDayOfInterval({ start, end })
   const startPad = start.getDay()
 
-  const bookingsOnDay = (d: Date) =>
-    bookings.filter((b) => isSameDay(parseISO(b.date), d))
-
-  const blockedEntry = (d: Date) =>
-    blocked.find((b) => isSameDay(parseISO(b.date), d))
+  // Dates are plain calendar days ("YYYY-MM-DD"); compare as strings so no timezone can shift them.
+  const key = (d: Date) => format(d, "yyyy-MM-dd")
+  const bookingsOnDay = (d: Date) => bookings.filter((b) => b.date === key(d))
+  const blockedEntry = (d: Date) => blocked.find((b) => b.date === key(d))
 
   const toggleBlock = async (d: Date) => {
     if (toggling) return
@@ -54,18 +52,22 @@ export function CalendarView({
     setToggling(true)
     try {
       if (entry) {
-        await fetch(`/api/priests/blocked-dates/${entry.id}`, { method: "DELETE" })
+        const res = await fetch(`/api/priests/blocked-dates/${entry.id}`, { method: "DELETE" })
+        if (!res.ok) throw new Error()
         setBlocked((prev) => prev.filter((b) => b.id !== entry.id))
       } else {
         const res = await fetch("/api/priests/blocked-dates", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ date: d.toISOString() }),
+          body: JSON.stringify({ date: key(d) }),
         })
         const data = await res.json()
-        setBlocked((prev) => [...prev, { id: data.id, date: d.toISOString() }])
+        if (!res.ok) throw new Error(data.error)
+        setBlocked((prev) => (prev.some((b) => b.id === data.id) ? prev : [...prev, { id: data.id, date: key(d) }]))
       }
-    } catch {}
+    } catch (e) {
+      toast.error(e instanceof Error && e.message ? e.message : "Could not update that date")
+    }
     setToggling(false)
     setSelectedDay(d)
   }

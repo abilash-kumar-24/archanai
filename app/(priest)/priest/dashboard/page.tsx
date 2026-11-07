@@ -2,17 +2,19 @@ import { redirect } from "next/navigation"
 import { format } from "date-fns"
 import { CalendarClock, IndianRupee, Star, TrendingUp, CheckCircle2, Clock, AlertCircle } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { CEREMONIES, CITIES } from "@/lib/constants"
 import { formatINR } from "@/lib/utils/booking"
 import { getSessionUser } from "@/lib/supabase/get-session-user"
 import { prisma } from "@/lib/prisma"
 import { BookingActionButtons } from "@/components/priest/booking-action-buttons"
+import { CompleteButtons } from "@/components/priest/complete-buttons"
 import type { CeremonyType, City } from "@/types"
 
 export const metadata = { title: "Priest Dashboard" }
+
+// Evaluated on the server per request; kept out of the component body so it reads as a plain helper.
+const hasArrived = (d: Date) => d.getTime() <= Date.now()
 
 const STATUS_ICON: Record<string, typeof CheckCircle2> = {
   PRIEST_ACCEPTED: CheckCircle2,
@@ -36,6 +38,8 @@ export default async function PriestDashboard() {
       displayName: true,
       rating:      true,
       reviewCount: true,
+      verificationStatus: true,
+      isActive:    true,
     },
   })
 
@@ -54,16 +58,16 @@ export default async function PriestDashboard() {
       orderBy: { scheduledDate: "asc" },
       take: 10,
     }),
-    prisma.booking.aggregate({
+    prisma.booking.findMany({
       where:  { priestId: priest.id, status: "COMPLETED" },
-      _count: { id: true },
-      _sum:   { totalAmount: true },
+      select: { amountReceived: true, totalAmount: true },
     }),
   ])
 
   const pendingCount   = upcomingBookings.filter((b) => b.status === "PENDING").length
-  const completedCount = stats._count.id
-  const totalEarned    = stats._sum.totalAmount ?? 0
+  const completedCount = stats.length
+  // Recorded amount where the priest entered one, otherwise the agreed price.
+  const totalEarned    = stats.reduce((sum, b) => sum + (b.amountReceived ?? b.totalAmount), 0)
 
   return (
     <div className="space-y-8 max-w-5xl">
@@ -84,6 +88,20 @@ export default async function PriestDashboard() {
           </div>
         )}
       </div>
+
+      {priest.verificationStatus !== "VERIFIED" && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          {priest.verificationStatus === "REJECTED"
+            ? "Your application needs attention before families can see you. Update your profile, then contact the Archanai team."
+            : "Your profile is awaiting verification. Our team will call you; until then families cannot find or book you."}{" "}
+          <a href="/priest/profile" className="underline font-medium">Complete your profile</a>
+        </div>
+      )}
+      {priest.verificationStatus === "VERIFIED" && !priest.isActive && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          Your profile is currently paused and hidden from families. Contact the Archanai team to reactivate it.
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -153,7 +171,13 @@ export default async function PriestDashboard() {
                             <CalendarClock className="h-3 w-3" />
                             {format(booking.scheduledDate, "EEE d MMM")} · {booking.scheduledTime}
                           </span>
-                          <span>📍 {booking.addressLine1}, {CITIES[booking.city as City]?.label}</span>
+                          <span>📍 {booking.addressLine1}, {CITIES[booking.city as City]?.label}{" "}
+                            <a className="text-primary underline" target="_blank" rel="noopener noreferrer"
+                              href={booking.googleMapsUrl ?? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${booking.addressLine1}, ${booking.pincode}`)}`}>Map</a>
+                          </span>
+                          {booking.status === "PRIEST_ACCEPTED" && booking.contactPhone && (
+                            <a className="text-primary underline" href={`tel:+91${booking.contactPhone}`}>📞 +91 {booking.contactPhone}</a>
+                          )}
                         </div>
 
                         {familyDetails && (
@@ -171,6 +195,9 @@ export default async function PriestDashboard() {
 
                     {booking.status === "PENDING" && (
                       <BookingActionButtons bookingId={booking.id} bookingRef={booking.bookingRef} />
+                    )}
+                    {booking.status === "PRIEST_ACCEPTED" && hasArrived(booking.scheduledDate) && (
+                      <CompleteButtons bookingId={booking.id} suggested={booking.totalAmount} />
                     )}
                   </CardContent>
                 </Card>

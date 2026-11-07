@@ -3,6 +3,9 @@
 import Link from "next/link"
 import { useState } from "react"
 import { Menu, X, Flame } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
+import { NotificationBell } from "@/components/shared/notification-bell"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -12,8 +15,26 @@ const NAV_LINKS = [
   { href: "/faq",    label: "FAQ" },
 ]
 
-export function Navbar() {
+export type NavUser = { name: string; role: "CONSUMER" | "PRIEST" | "ADMIN" } | null
+
+export function Navbar({ user }: { user: NavUser }) {
   const [open, setOpen] = useState(false)
+  const router = useRouter()
+
+  const signOut = async () => {
+    await createClient().auth.signOut()
+    setOpen(false)
+    router.push("/")
+    router.refresh()
+  }
+  const accountLinks = user
+    ? [
+        { href: "/bookings", label: "My Bookings" },
+        { href: "/favorites", label: "Saved" },
+        ...(user.role === "PRIEST" ? [{ href: "/priest/dashboard", label: "Priest Dashboard" }] : []),
+        ...(user.role === "ADMIN" ? [{ href: "/admin/dashboard", label: "Admin" }, { href: "/priest/dashboard", label: "Priest Dashboard" }] : []),
+      ]
+    : []
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -45,9 +66,19 @@ export function Navbar() {
 
           {/* CTA */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/login">Sign in</Link>
-            </Button>
+            {user ? (
+              <>
+                {accountLinks.map((l) => (
+                  <Link key={l.href} href={l.href} className="text-sm text-muted-foreground hover:text-foreground">{l.label}</Link>
+                ))}
+                <NotificationBell />
+                <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
+              </>
+            ) : (
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/login">Sign in</Link>
+              </Button>
+            )}
             <Button size="sm" asChild>
               <Link href="/browse">Book a Priest</Link>
             </Button>
@@ -78,9 +109,18 @@ export function Navbar() {
             </Link>
           ))}
           <div className="pt-3 flex flex-col gap-2 border-t border-border/60">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/login">Sign in</Link>
-            </Button>
+            {user ? (
+              <>
+                {[...accountLinks, { href: "/notifications", label: "Notifications" }].map((l) => (
+                  <Link key={l.href} href={l.href} className="block text-sm text-muted-foreground hover:text-foreground py-1" onClick={() => setOpen(false)}>{l.label}</Link>
+                ))}
+                <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
+              </>
+            ) : (
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/login">Sign in</Link>
+              </Button>
+            )}
             <Button size="sm" asChild>
               <Link href="/browse">Book a Priest</Link>
             </Button>

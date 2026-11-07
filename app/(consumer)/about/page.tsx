@@ -56,8 +56,8 @@ export default function AboutPage() {
           <div className="prose prose-sm max-w-none text-muted-foreground space-y-4 leading-relaxed">
             <p>
               Finding a priest for a Griha Pravesh or an Upanayanam in an Indian city today often means calling
-              an uncle who knows someone who knows a pandit — and hoping he's available on your muhurtam date.
-              If you've recently relocated from your hometown, you're starting from scratch.
+              an uncle who knows someone who knows a pandit — and hoping he&apos;s available on your muhurtam date.
+              If you&apos;ve recently relocated from your hometown, you&apos;re starting from scratch.
             </p>
             <p>
               On the other side, many learned priests spend more time managing phone calls, chasing payments,
@@ -98,11 +98,11 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold tracking-tight mb-6">V1 — South India first</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
             We launched in Chennai, Bangalore, Hyderabad, Cochin, and Amaravati — five cities with
-            deep, distinct Hindu traditions and large populations of families who've moved away
+            deep, distinct Hindu traditions and large populations of families who&apos;ve moved away
             from their ancestral towns.
           </p>
           <p className="text-muted-foreground leading-relaxed mb-8">
-            We're starting small and doing it properly: manually verifying every priest, personally
+            We&apos;re starting small and doing it properly: manually verifying every priest, personally
             onboarding the first cohort as Founding Priests, and learning from each ceremony before
             we expand.
           </p>
