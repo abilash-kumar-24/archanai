@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer"
 import { Resend } from "resend"
 import { env } from "@/lib/env"
 import { SITE_URL } from "@/lib/site-url"
@@ -15,10 +16,23 @@ export function esc(v: unknown): string {
     .replace(/'/g, "&#39;")
 }
 
-// Resend resolves with { error } instead of throwing, so check it or failures are silent.
+// Transport: Brevo SMTP when BREVO_SMTP_USER/KEY are set, otherwise Resend. Neither path throws on a
+// rejected send, so both log the failure: a failed email must never fail the booking that triggered it.
 async function mail(to: string | string[], subject: string, html: string) {
+  if (env.brevoSmtpUser && env.brevoSmtpKey) return sendViaSmtp(to, subject, html, env.brevoSmtpUser, env.brevoSmtpKey)
+  if (!env.resendApiKey) return console.error("[email] no email provider configured; dropped:", subject)
   const { error } = await new Resend(env.resendApiKey).emails.send({ from: FROM, to, subject, html })
   if (error) console.error("[email]", subject, error)
+}
+
+async function sendViaSmtp(to: string | string[], subject: string, html: string, user: string, pass: string) {
+  try {
+    await nodemailer
+      .createTransport({ host: "smtp-relay.brevo.com", port: 587, auth: { user, pass } })
+      .sendMail({ from: FROM, to, subject, html })
+  } catch (err) {
+    console.error("[email]", subject, err)
+  }
 }
 
 const row = (k: string, v: unknown) => `<tr><td><strong>${esc(k)}</strong></td><td>${esc(v)}</td></tr>`

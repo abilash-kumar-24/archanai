@@ -11,7 +11,7 @@ Next.js 16 (App Router, `proxy.ts` instead of middleware) · React 19 · Prisma 
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | Vercel + `.env.local` | service key is server-only |
 | `DATABASE_URL`, `DIRECT_URL` | Vercel + `.env.local` | the app connects with `DIRECT_URL ?? DATABASE_URL`; Prisma CLI uses `DIRECT_URL` |
 | `RESEND_API_KEY`, `FROM_EMAIL` | Vercel | `FROM_EMAIL` must be on a Resend-verified domain, or only the Resend account owner receives mail |
-| `NEXT_PUBLIC_APP_URL` | Vercel | `https://priest-azure.vercel.app` (or your domain). Used in emails and sitemap |
+| `NEXT_PUBLIC_APP_URL` | Vercel | `https://archanai.vercel.app` (or your domain). Used in emails and sitemap |
 | `CRON_SECRET` | Vercel | any long random string. Without it both cron routes return 403 |
 
 ## Database

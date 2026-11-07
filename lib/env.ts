@@ -6,7 +6,6 @@ const required = {
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   SUPABASE_SERVICE_ROLE_KEY:     process.env.SUPABASE_SERVICE_ROLE_KEY,
   DATABASE_URL:                  process.env.DATABASE_URL,
-  RESEND_API_KEY:                process.env.RESEND_API_KEY,
 } as const
 
 if (typeof window === "undefined") {
@@ -26,7 +25,9 @@ export const env = {
   supabaseAnonKey:    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
   databaseUrl:        process.env.DATABASE_URL!,
-  resendApiKey:       process.env.RESEND_API_KEY!,
+  resendApiKey:       process.env.RESEND_API_KEY,
+  brevoSmtpUser:      process.env.BREVO_SMTP_USER,
+  brevoSmtpKey:       process.env.BREVO_SMTP_KEY,
   fromEmail:          process.env.FROM_EMAIL ?? "Archanai <noreply@archanai.in>",
   appUrl:             process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
 } as const

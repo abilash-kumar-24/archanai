@@ -97,6 +97,6 @@ Google/phone login · WhatsApp/SMS (removed earlier on purpose) · map autocompl
    `npx prisma migrate resolve --applied 0002_rename_identity_verified`
    `npx prisma migrate resolve --applied 0003_remove_payment_gateway`
    `npx prisma migrate deploy`
-3. **Vercel env**: `CRON_SECRET` (long random string), `NEXT_PUBLIC_APP_URL=https://priest-azure.vercel.app`.
+3. **Vercel env**: `CRON_SECRET` (long random string), `NEXT_PUBLIC_APP_URL=https://archanai.vercel.app`.
 4. Deploy; then do the manual pass: sign in → register as priest → upload photo/doc → admin approves → book from another account → accept → reschedule → complete with amount → review → check bell and emails.
 5. Remove test accounts; onboard real priests.
