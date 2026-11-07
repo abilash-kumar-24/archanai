@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/supabase/get-session-user"
 import { sendCancellationNotice } from "@/lib/resend/emails"
 import { notify } from "@/lib/notify"
+import { background } from "@/lib/background"
 
 // Consumer cancels their own upcoming booking
 export async function POST(
@@ -32,16 +33,16 @@ export async function POST(
     data:  { status: "CANCELLED_CONSUMER", cancellationReason: reason?.slice(0, 1000) },
   })
 
-  notify(existing.priest.userId, {
+  await notify(existing.priest.userId, {
     type: "BOOKING_CANCELLED", title: "Booking cancelled by family",
     body: `${existing.ceremony.name} (${existing.bookingRef})`, href: "/priest/dashboard",
   })
-  sendCancellationNotice(existing.priest.user.email, {
+  background(() => sendCancellationNotice(existing.priest.user.email, {
     name:         existing.priest.displayName,
     bookingRef:   existing.bookingRef,
     ceremonyName: existing.ceremony.name,
     reason:       reason || "Cancelled by the family.",
-  }).catch(console.error)
+  }))
 
   return NextResponse.json({ success: true })
 }

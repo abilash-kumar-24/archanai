@@ -5,7 +5,7 @@ Legend: `[x]` done and verified as stated · `[~]` code complete, goes live only
 **Everything marked `[~]` depends on migration `0004` being applied to the live database (see "Human steps").** Until then the deployed app and the DB disagree, so do not deploy before step 2.
 
 ## Verification performed (and what was not)
-- Verified: `tsc` clean · `eslint` 0 errors (0 warnings) · `next build` passes · 7 unit tests (`npm test`) · migrations 0001→0004 applied to a throwaway in-memory Postgres (PGlite) with legacy data, confirming the backfill, the blocked-date dedupe and the one-live-booking-per-day index · Prisma queries behind availability, booking, reviews, favourites, notifications, browse filters and the registration/profile transactions run against that database (15 checks pass) · production server started, 11 public/guarded routes return expected status codes.
+- Verified (latest): the API journey test (`npm run test:api`, 13 tests) drives the real route handlers end to end and asserts emails; deployed to production. Earlier: `tsc` clean · `eslint` 0 errors (0 warnings) · `next build` passes · 7 unit tests (`npm test`) · migrations 0001→0004 applied to a throwaway in-memory Postgres (PGlite) with legacy data, confirming the backfill, the blocked-date dedupe and the one-live-booking-per-day index · Prisma queries behind availability, booking, reviews, favourites, notifications, browse filters and the registration/profile transactions run against that database (15 checks pass) · production server started, 11 public/guarded routes return expected status codes.
 - **Not verified:** any click-through in a real browser; real emails (Resend is unconfigured for real recipients); real Supabase login; the live database after 0004 (not applied); file uploads against real Supabase Storage; Vercel cron execution. Expect small UI defects on first real use — budget a manual pass through the flows listed at the end.
 
 ## A. Environment and data
@@ -13,7 +13,7 @@ Legend: `[x]` done and verified as stated · `[~]` code complete, goes live only
 - [x] A2 `priest-photos` bucket created (`priest-docs`, private, is created on first document upload)
 - [x] A3 Empty-string phone bug (code + data)
 - [!] A4 Baseline `_prisma_migrations` — blocked: the permission checker denies writes to the production DB from this session
-- [!] A5 Resend sending domain — Supabase SMTP and app email both send from `onboarding@resend.dev`, which only delivers to the Resend account owner. Magic-link login and all notification emails fail for real users until fixed
+- [x] A5 Email provider: switched to Brevo SMTP (works without a domain, sender `gigarthub.team@gmail.com`; a test mail was delivered); Supabase auth emails use the same SMTP and are branded. Remaining caveat: Gmail sender ⇒ spam risk. Original note: Resend sending domain — Supabase SMTP and app email both send from `onboarding@resend.dev`, which only delivers to the Resend account owner. Magic-link login and all notification emails fail for real users until fixed
 - [ ] A6 Delete test accounts (`e2e-*@archanai-test.dev`) and the test priest before onboarding (your call)
 - [ ] A7 Branded magic-link email (Supabase Auth → Email templates; current text is the default "Magic Link")
 
@@ -38,6 +38,7 @@ Legend: `[x]` done and verified as stated · `[~]` code complete, goes live only
 - [x] B19 Removed the "replacement priest within 2 hours" promise (FAQ, Terms) and other statements the product does not do: "we review a priest's first 3 bookings", "book up to 6 months ahead" (it is 12), "notified within 24 hours" (it is 48), samagri cost "bundled", "always prepared / always there"
 - [x] B20 Travel-fee input removed from priest forms: it never affected anything, so asking for it implied a feature that did not exist
 - [x] B21 Replaced profile photos are deleted from storage; unused `/api/priests` endpoint and unused imports removed
+- [x] B22 Emails and notifications were fire-and-forget; on Vercel a plain background promise can be frozen when the response returns, so they could be silently lost. Now `after()` for email, `await` for the DB notification (found by the API journey test; Next docs confirm the platform behaviour)
 - [x] B18 Migration validation caught a stray log line in the generated `0004` SQL that would have failed the deploy: fixed
 
 ## C. Booking integrity
@@ -56,7 +57,7 @@ Legend: `[x]` done and verified as stated · `[~]` code complete, goes live only
 - [~] D3 Samagri checklist emailed on accept (the wizard promised it; it was never sent)
 - [~] D4 In-app notifications, bell with unread count, `/notifications`
 - [~] D5 Reschedule / cancel / decline / expiry notify the other side
-- [!] D6 All email depends on A5
+- [x] D6 Email works via Brevo (see A5)
 
 ## E. Priest journey
 - [~] E1 Registration saves phone, per-ceremony prices; default Mon–Sun hours

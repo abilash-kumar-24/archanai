@@ -8,6 +8,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin"
 import { deriveFromOfferings, priestProfileSchema, DEFAULT_WINDOWS } from "@/lib/priest/schema"
 import { sendAdminNewPriest } from "@/lib/resend/emails"
 import { notify } from "@/lib/notify"
+import { background } from "@/lib/background"
 import { CITIES } from "@/lib/constants"
 
 // Registration needs the same fields as the profile editor, minus the free-text extras.
@@ -56,8 +57,8 @@ export async function POST(req: Request) {
   await supabaseAdmin.auth.admin.updateUserById(user.supabaseId, { app_metadata: { role: "PRIEST" } })
 
   const admins = await prisma.user.findMany({ where: { role: "ADMIN" }, select: { id: true, email: true } })
-  admins.forEach((a) => notify(a.id, { type: "PRIEST_APPLIED", title: "New priest application", body: d.displayName, href: "/admin/dashboard" }))
-  sendAdminNewPriest(admins.map((a) => a.email), { name: d.displayName, city: d.cities.map((c) => CITIES[c].label).join(", ") }).catch(console.error)
+  await Promise.all(admins.map((a) => notify(a.id, { type: "PRIEST_APPLIED", title: "New priest application", body: d.displayName, href: "/admin/dashboard" })))
+  background(() => sendAdminNewPriest(admins.map((a) => a.email), { name: d.displayName, city: d.cities.map((c) => CITIES[c].label).join(", ") }))
 
   return NextResponse.json({ priestId: priest.id }, { status: 201 })
 }

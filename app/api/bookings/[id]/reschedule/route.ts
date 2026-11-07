@@ -9,6 +9,7 @@ import { parseDateOnly, todayIST } from "@/lib/dates"
 import { evaluateSlot, loadSlotContext } from "@/lib/booking/availability"
 import { sendRescheduleNotice } from "@/lib/resend/emails"
 import { notify } from "@/lib/notify"
+import { background } from "@/lib/background"
 
 const MAX_RESCHEDULES = 2
 const bodySchema = z.object({
@@ -61,14 +62,14 @@ export async function POST(
   }
 
   const when = format(day, "d MMM yyyy")
-  notify(b.priest.userId, {
+  await notify(b.priest.userId, {
     type: "BOOKING_RESCHEDULED", title: "Reschedule request",
     body: `${b.ceremony.name} (${b.bookingRef}) → ${when} ${parsed.data.scheduledTime}`, href: "/priest/dashboard",
   })
-  sendRescheduleNotice(b.priest.user.email, {
+  background(() => sendRescheduleNotice(b.priest.user.email, {
     name: b.priest.displayName, bookingRef: b.bookingRef, ceremonyName: b.ceremony.name,
     date: when, time: parsed.data.scheduledTime,
-  }).catch(console.error)
+  }))
 
   return NextResponse.json({ success: true })
 }

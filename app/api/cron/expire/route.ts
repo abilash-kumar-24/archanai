@@ -29,8 +29,8 @@ export async function GET(req: NextRequest) {
       data: { status: "CANCELLED_PRIEST", cancellationReason: reason },
     })
     if (!count) continue
-    notify(b.consumerId, { type: "BOOKING_EXPIRED", title: "Request expired", body: `${b.ceremony.name} (${b.bookingRef}) — ${reason}`, href: `/bookings/${b.id}` })
-    sendCancellationNotice(b.consumer.email, { name: b.consumer.name, bookingRef: b.bookingRef, ceremonyName: b.ceremony.name, reason }).catch(console.error)
+    await notify(b.consumerId, { type: "BOOKING_EXPIRED", title: "Request expired", body: `${b.ceremony.name} (${b.bookingRef}) — ${reason}`, href: `/bookings/${b.id}` })
+    await sendCancellationNotice(b.consumer.email, { name: b.consumer.name, bookingRef: b.bookingRef, ceremonyName: b.ceremony.name, reason })
   }
   return NextResponse.json({ expired: stale.length })
 }

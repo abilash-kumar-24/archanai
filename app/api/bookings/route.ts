@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/supabase/get-session-user"
 import { sendPriestBookingAlert, sendBookingReceived } from "@/lib/resend/emails"
 import { notify } from "@/lib/notify"
+import { background } from "@/lib/background"
 import { parseDateOnly, todayIST } from "@/lib/dates"
 import { evaluateSlot, loadSlotContext } from "@/lib/booking/availability"
 import { CITIES, CEREMONIES } from "@/lib/constants"
@@ -127,19 +128,19 @@ export async function POST(req: NextRequest) {
     })
 
     const when = format(day, "d MMM yyyy")
-    notify(priest.userId, {
+    await notify(priest.userId, {
       type: "BOOKING_REQUEST", title: "New booking request",
       body: `${data.familyDetails.primaryName} · ${ceremony.name} · ${when}`, href: "/priest/dashboard",
     })
-    sendPriestBookingAlert(priest.user.email, {
+    background(() => sendPriestBookingAlert(priest.user.email, {
       priestName: priest.displayName, bookingRef: booking.bookingRef, ceremonyName: ceremony.name,
       consumerName: data.familyDetails.primaryName, date: when, time: data.scheduledTime,
       address: `${data.addressLine1}, ${CITIES[data.city].label}`,
-    }).catch(console.error)
-    sendBookingReceived(user.email, {
+    }))
+    background(() => sendBookingReceived(user.email, {
       consumerName: user.name, bookingRef: booking.bookingRef, ceremonyName: ceremony.name,
       priestName: priest.displayName, date: when, time: data.scheduledTime,
-    }).catch(console.error)
+    }))
 
     return NextResponse.json({ bookingId: booking.id, bookingRef: booking.bookingRef })
   } catch (err) {

@@ -5,6 +5,7 @@ import { getSessionUser } from "@/lib/supabase/get-session-user"
 import { sendBookingConfirmation, sendCancellationNotice, sendSamagriChecklist } from "@/lib/resend/emails"
 import { getSamagriList } from "@/lib/samagri/data"
 import { notify } from "@/lib/notify"
+import { background } from "@/lib/background"
 import { format } from "date-fns"
 import { z } from "zod"
 import type { Tradition } from "@/types"
@@ -50,30 +51,30 @@ export async function POST(
     const address = `${booking.addressLine1}, ${booking.city}`
 
     if (action === "accept") {
-      notify(booking.consumerId, {
+      await notify(booking.consumerId, {
         type: "BOOKING_ACCEPTED", title: "Booking confirmed",
         body: `${booking.priest.displayName} accepted your ${booking.ceremony.name} on ${date}`, href: `/bookings/${id}`,
       })
-      sendBookingConfirmation(booking.consumer.email, {
+      background(() => sendBookingConfirmation(booking.consumer.email, {
         consumerName: booking.consumer.name, bookingRef: booking.bookingRef, ceremonyName: booking.ceremony.name,
         priestName: booking.priest.displayName, priestPhone: booking.priest.user.phone,
         date, time: booking.scheduledTime, address,
-      }).catch(console.error)
+      }))
       if (booking.samagriOption === "SELF_ARRANGED") {
-        sendSamagriChecklist(booking.consumer.email, {
+        background(() => sendSamagriChecklist(booking.consumer.email, {
           name: booking.consumer.name, ceremonyName: booking.ceremony.name,
           items: getSamagriList(booking.ceremony.type, booking.priest.tradition as Tradition),
-        }).catch(console.error)
+        }))
       }
     } else {
-      notify(booking.consumerId, {
+      await notify(booking.consumerId, {
         type: "BOOKING_DECLINED", title: "Booking declined",
         body: `${booking.priest.displayName} could not take your ${booking.ceremony.name} on ${date}`, href: `/bookings/${id}`,
       })
-      sendCancellationNotice(booking.consumer.email, {
+      background(() => sendCancellationNotice(booking.consumer.email, {
         name: booking.consumer.name, bookingRef: booking.bookingRef, ceremonyName: booking.ceremony.name,
         reason: notes || "The priest is unavailable on this date.",
-      }).catch(console.error)
+      }))
     }
 
     return NextResponse.json({ success: true, status: booking.status })

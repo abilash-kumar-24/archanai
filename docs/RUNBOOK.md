@@ -10,7 +10,7 @@ Next.js 16 (App Router, `proxy.ts` instead of middleware) · React 19 · Prisma 
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | Vercel + `.env.local` | service key is server-only |
 | `DATABASE_URL`, `DIRECT_URL` | Vercel + `.env.local` | the app connects with `DIRECT_URL ?? DATABASE_URL`; Prisma CLI uses `DIRECT_URL` |
-| `RESEND_API_KEY`, `FROM_EMAIL` | Vercel | `FROM_EMAIL` must be on a Resend-verified domain, or only the Resend account owner receives mail |
+| `BREVO_SMTP_USER`, `BREVO_SMTP_KEY`, `FROM_EMAIL` | Vercel | Email goes through Brevo SMTP (`smtp-relay.brevo.com:587`). `FROM_EMAIL` must be a sender verified in Brevo. If the two `BREVO_*` vars are absent the app falls back to Resend (`RESEND_API_KEY`), which only delivers to the Resend account owner until a domain is verified |
 | `NEXT_PUBLIC_APP_URL` | Vercel | `https://archanai.vercel.app` (or your domain). Used in emails and sitemap |
 | `CRON_SECRET` | Vercel | any long random string. Without it both cron routes return 403 |
 
@@ -35,7 +35,11 @@ Next.js 16 (App Router, `proxy.ts` instead of middleware) · React 19 · Prisma 
 Request must be ≥1 day ahead (IST) and ≤365 days; inside the priest's weekly hours; not on a blocked date; and a priest has at most one live booking per day (database partial unique index). A family may hold 5 pending requests; reschedule at most twice.
 
 ## Checks before each deploy
-`npx tsc --noEmit && npx eslint . && npm test && npm run build`
+`npx tsc --noEmit && npx eslint . && npm test && npm run test:api && npm run build`
+
+`npm test` = fast unit tests (dates, availability, email escaping). `npm run test:api` runs the real API route handlers through the whole priest and family journey (register, approve, book, accept, reschedule, complete, review, cancel, expiry cron, pause) against an in-memory Postgres built from the real migrations; Supabase session/storage and the SMTP transport are mocked, and it asserts which emails are sent.
+
+Emails and notifications: in-app notifications are awaited; emails run via `after()` (`lib/background.ts`) so Vercel keeps the invocation alive until they are sent.
 
 ## Known pilot limits
-Email is the only channel (no SMS/WhatsApp). No maps geocoding or distance-based travel fee (travel fee is informational). English UI only. No rate limiting beyond Vercel's defaults. No automated end-to-end tests; core date/availability logic has unit tests in `tests/`.
+Email is the only channel (no SMS/WhatsApp). Email is sent from a Gmail address via Brevo, so some will land in spam until you own a domain with SPF/DKIM. No maps geocoding or distance-based travel fee (travel fee is informational). English UI only. No rate limiting beyond Vercel's defaults. No automated end-to-end tests; core date/availability logic has unit tests in `tests/`.

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/supabase/get-session-user"
 import { sendPriestVerification } from "@/lib/resend/emails"
 import { notify } from "@/lib/notify"
+import { background } from "@/lib/background"
 
 const bodySchema = z.object({ action: z.enum(["approve", "reject", "deactivate", "reactivate"]) })
 
@@ -42,13 +43,13 @@ export async function POST(
 
   if (action === "approve" || action === "reject") {
     const approved = action === "approve"
-    notify(priest.userId, {
+    await notify(priest.userId, {
       type: approved ? "PRIEST_VERIFIED" : "PRIEST_REJECTED",
       title: approved ? "You're verified" : "Application needs attention",
       body: approved ? "Your profile is now visible to families." : "Please update your profile and documents.",
       href: approved ? "/priest/dashboard" : "/priest/profile",
     })
-    sendPriestVerification(priest.user.email, { name: priest.displayName, approved }).catch(console.error)
+    background(() => sendPriestVerification(priest.user.email, { name: priest.displayName, approved }))
   }
 
   return NextResponse.json({ success: true })
