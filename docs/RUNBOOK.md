@@ -3,7 +3,7 @@
 Current, verified-against-code operations guide. (`README.md` is the long-term product vision and is partly aspirational: it still mentions WhatsApp, deposits and Next 15, none of which exist.)
 
 ## Stack in one line
-Next.js 16 (App Router, `proxy.ts` instead of middleware) · React 19 · Prisma 7 + Postgres (Supabase) · Supabase Auth (email magic link) + Storage · Resend email · Vercel hosting + cron.
+Next.js 16 (App Router, `proxy.ts` instead of middleware) · React 19 · Prisma 7 + Postgres (Supabase) · Supabase Auth (email magic link) + Storage · Brevo SMTP email (Resend fallback) · Vercel hosting + cron.
 
 ## Environment variables
 | Var | Where | Notes |
@@ -42,4 +42,4 @@ Request must be ≥1 day ahead (IST) and ≤365 days; inside the priest's weekly
 Emails and notifications: in-app notifications are awaited; emails run via `after()` (`lib/background.ts`) so Vercel keeps the invocation alive until they are sent.
 
 ## Known pilot limits
-Email is the only channel (no SMS/WhatsApp). Email is sent from a Gmail address via Brevo, so some will land in spam until you own a domain with SPF/DKIM. No maps geocoding or distance-based travel fee (travel fee is informational). English UI only. No rate limiting beyond Vercel's defaults. No automated end-to-end tests; core date/availability logic has unit tests in `tests/`.
+Email is the only channel (no SMS/WhatsApp). Email is sent from a Gmail address via Brevo, so some will land in spam until you own a domain with SPF/DKIM. No maps geocoding and no distance-based travel fee. English UI only. No rate limiting beyond Vercel's defaults. No browser-level end-to-end tests: the API journey test covers the server side, but screens and file uploads to real Storage are checked by hand.
