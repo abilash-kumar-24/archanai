@@ -45,7 +45,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">4. Data retention</h2>
-            <p>Booking records are retained for 3 years for tax and dispute purposes. Priest verification documents are retained for 2 years after a priest&apos;s account is closed. You may request deletion of your account and associated data by emailing privacy@archanai.in — subject to retention obligations.</p>
+            <p>Booking records are retained for 3 years for tax and dispute purposes. Priest verification documents are retained for 2 years after a priest&apos;s account is closed. You may request deletion of your account and associated data by emailing gigarthub.team@gmail.com — subject to retention obligations.</p>
           </section>
 
           <section>
@@ -55,14 +55,14 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">6. Your rights</h2>
-            <p>Under applicable Indian data protection law, you have the right to access, correct, and request deletion of your personal data. Contact us at <strong className="text-foreground">privacy@archanai.in</strong> to exercise these rights.</p>
+            <p>Under applicable Indian data protection law, you have the right to access, correct, and request deletion of your personal data. Contact us at <strong className="text-foreground">gigarthub.team@gmail.com</strong> to exercise these rights.</p>
           </section>
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">7. Contact</h2>
             <p>
               Archanai<br />
-              Email: privacy@archanai.in
+              Email: gigarthub.team@gmail.com
             </p>
           </section>
         </div>

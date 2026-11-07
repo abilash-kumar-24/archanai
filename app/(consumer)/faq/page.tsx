@@ -70,7 +70,7 @@ export default function FaqPage() {
         <div className="mt-16 rounded-2xl bg-accent/30 p-8 text-center">
           <h2 className="font-semibold mb-2">Still have questions?</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Email us at <strong>support@archanai.in</strong>
+            Email us at <strong>gigarthub.team@gmail.com</strong>
           </p>
           <Button asChild variant="outline">
             <Link href="/browse">Browse Priests</Link>

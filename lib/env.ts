@@ -28,6 +28,6 @@ export const env = {
   resendApiKey:       process.env.RESEND_API_KEY,
   brevoSmtpUser:      process.env.BREVO_SMTP_USER,
   brevoSmtpKey:       process.env.BREVO_SMTP_KEY,
-  fromEmail:          process.env.FROM_EMAIL ?? "Archanai <noreply@archanai.in>",
+  fromEmail:          process.env.FROM_EMAIL ?? "Archanai <gigarthub.team@gmail.com>",
   appUrl:             process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
 } as const

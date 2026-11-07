@@ -68,7 +68,7 @@ export default function TermsPage() {
             <h2 className="text-base font-semibold text-foreground mb-3">9. Contact</h2>
             <p>
               Archanai<br />
-              Email: legal@archanai.in
+              Email: gigarthub.team@gmail.com
             </p>
           </section>
         </div>
