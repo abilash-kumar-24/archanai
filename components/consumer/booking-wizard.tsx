@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils"
 import { CEREMONIES, TRADITIONS, CITIES } from "@/lib/constants"
 import { formatINR } from "@/lib/utils/booking"
 import { addDays, dayOfWeek, todayIST } from "@/lib/dates"
+import { bookedKey } from "@/lib/booking/slots"
 import { toast } from "sonner"
 import type { City, CeremonyType, SamagriOption, Tradition } from "@/types"
 
@@ -48,11 +49,10 @@ const locationSchema = z.object({
 type FamilyForm   = z.infer<typeof familySchema>
 type LocationForm = z.infer<typeof locationSchema>
 
-const TIME_SLOTS = [
-  "06:00", "06:30", "07:00", "07:30", "08:00", "08:30",
-  "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-  "16:00", "16:30", "17:00", "17:30", "18:00",
-]
+const TIME_SLOTS = Array.from({ length: 29 }, (_, i) => {
+  const m = 6 * 60 + i * 30
+  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${m % 60 === 0 ? "00" : "30"}`
+}) // 06:00 … 20:00
 
 export interface BookingPriest {
   id:            string
@@ -79,7 +79,7 @@ interface BookingWizardProps {
   prefill?:        BookingPrefill
 }
 
-type Availability = { windows: { dayOfWeek: number; startTime: string; endTime: string }[]; unavailable: string[] }
+type Availability = { windows: { dayOfWeek: number; startTime: string; endTime: string }[]; unavailable: string[]; booked: string[] }
 
 export function BookingWizard({ priest, initialCeremony, prefill }: BookingWizardProps) {
   const [step, setStep]                   = useState(0)
@@ -126,7 +126,10 @@ export function BookingWizard({ priest, initialCeremony, prefill }: BookingWizar
     return !!availability?.windows.length && !windowFor(d)
   }
   const dayWindow = selectedDate ? windowFor(selectedDate) : undefined
-  const slots = TIME_SLOTS.filter((t) => !dayWindow || (t >= dayWindow.startTime && t < dayWindow.endTime))
+  const bookedParts = useMemo(() => new Set(availability?.booked ?? []), [availability])
+  const slots = TIME_SLOTS.filter((t) =>
+    (!dayWindow || (t >= dayWindow.startTime && t < dayWindow.endTime)) &&
+    !(selectedDate && bookedParts.has(bookedKey(format(selectedDate, "yyyy-MM-dd"), t))))
   const offering = priest.offerings.find((o) => o.type === selectedCeremony)
 
   const canAdvance = () => {

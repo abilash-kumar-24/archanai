@@ -193,6 +193,7 @@ export default async function PriestDashboard() {
                       </div>
                     </div>
 
+                    <a href={`/priest/bookings/${booking.id}`} className="inline-block mt-3 text-xs text-primary underline">Open &amp; chat</a>
                     {booking.status === "PENDING" && (
                       <BookingActionButtons bookingId={booking.id} bookingRef={booking.bookingRef} />
                     )}

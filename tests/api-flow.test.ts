@@ -78,6 +78,8 @@ before(async () => {
   routes.expire = await import("../app/api/cron/expire/route")
   routes.favorites = await import("../app/api/favorites/route")
   routes.notifications = await import("../app/api/notifications/route")
+  routes.messages = await import("../app/api/bookings/[id]/messages/route")
+  routes.ics = await import("../app/api/priests/calendar/route")
 })
 after(async () => { await prisma.$disconnect(); await close(); process.exit(0) })
 
@@ -158,9 +160,10 @@ test("booking created with the priest's price; priest notified; double-booking r
   assert.equal(up.samagriOption, "PRIEST_ARRANGED"); assert.equal(up.totalAmount, 9000)
 })
 
-test("availability endpoint reports booked day; blocked dates guarded", async () => {
+test("availability endpoint reports booked day-part; blocked dates guarded", async () => {
   const av = await (await routes.availability.GET(R(`/api/priests/${priestId}/availability`, "GET"), ctx(priestId))).json()
-  assert.ok(av.unavailable.includes(day(5)) && av.windows.length === 7)
+  assert.ok(av.booked.includes(`${day(5)}|MORNING`) && av.windows.length === 7, "booked day-part reported")
+  assert.ok(!av.unavailable.includes(day(5)), "day stays open while other day-parts are free")
   as(priestUser)
   const block = (d: string) => routes.blocked.POST(R("/", "POST", { date: d }))
   assert.equal((await block(day(5))).status, 409, "has a booking")
@@ -284,4 +287,108 @@ test("admin can pause a priest; paused priest cannot be booked", async () => {
   as(family); assert.equal((await routes.bookings.POST(R("/", "POST", bookingBody(priestId, day(50))))).status, 409)
   as(admin); assert.equal((await routes.verify.POST(R("/", "POST", { action: "reactivate" }), ctx(priestId))).status, 200)
   as(family); assert.equal((await routes.bookings.POST(R("/", "POST", bookingBody(priestId, day(50))))).status, 200)
+})
+
+// ─── Day-parts, chat and calendar export ─────────────────────────────────────
+
+let p2: { id: string; user: U }
+const mkPriest = async () => {
+  const user = await mkUser("dp-priest", "PRIEST", "9000000001")
+  const pr = await prisma.priest.create({
+    data: {
+      userId: user.id, displayName: "Pandit DayPart", tradition: "IYER_SMARTHA", languages: ["TAMIL"], ceremonies: ["GRIHA_PRAVESH"], serviceCities: ["CHENNAI"],
+      experienceYears: 5, priceRangeMin: 2000, priceRangeMax: 2000, verificationStatus: "VERIFIED", isActive: true,
+      ceremonyOfferings: { create: [{ ceremonyType: "GRIHA_PRAVESH", price: 2000 }] },
+      availability: { createMany: { data: [0, 1, 2, 3, 4, 5, 6].map((dayOfWeek) => ({ dayOfWeek, startTime: "06:00", endTime: "20:00" })) } },
+    },
+  })
+  return { id: pr.id, user }
+}
+
+test("one booking per day-part: morning, afternoon and evening can all be taken on one day", async () => {
+  p2 = await mkPriest()
+  const fams = await Promise.all([1, 2, 3, 4].map((i) => mkUser(`dp-fam${i}`)))
+  const book = async (u: U, time: string) => { as(u); return routes.bookings.POST(R("/", "POST", bookingBody(p2.id, day(20), { scheduledTime: time }))) }
+  const av = async () => (await routes.availability.GET(R("/", "GET"), ctx(p2.id))).json()
+
+  assert.equal((await book(fams[0], "09:00")).status, 200, "morning")
+  assert.ok(!(await av()).unavailable.includes(day(20)), "day stays open while parts are free")
+  assert.ok((await av()).booked.includes(`${day(20)}|MORNING`))
+  const clash = await book(fams[1], "11:30")
+  assert.equal(clash.status, 409, "second morning booking refused"); assert.match((await clash.json()).error, /morning/i)
+  assert.equal((await book(fams[1], "14:00")).status, 200, "afternoon")
+  assert.equal((await book(fams[2], "18:00")).status, 200, "evening")
+  assert.ok((await av()).unavailable.includes(day(20)), "all three parts taken closes the day")
+  assert.equal((await book(fams[3], "07:00")).status, 409)
+
+  // cancelling frees the part again
+  const first = await prisma.booking.findFirstOrThrow({ where: { consumerId: fams[0].id } })
+  as(fams[0]); assert.equal((await routes.cancel.POST(R("/", "POST", {}), ctx(first.id))).status, 200)
+  assert.ok(!(await av()).unavailable.includes(day(20)))
+  assert.equal((await book(fams[3], "07:00")).status, 200, "freed morning can be re-booked")
+})
+
+test("database also refuses two live bookings in one day-part (race backstop)", async () => {
+  const existing = await prisma.booking.findFirstOrThrow({ where: { priestId: p2.id, scheduledTime: "14:00" } })
+  await assert.rejects(prisma.booking.create({ data: { ...existing, id: undefined, bookingRef: "ARC-DUP", scheduledTime: "15:00" } as never }))
+})
+
+test("chat: only participants, validated, read-only once closed, notifications not flooded", async () => {
+  const fam = await mkUser("chat-fam")
+  as(fam)
+  const created = await routes.bookings.POST(R("/", "POST", bookingBody(p2.id, day(25))))
+  assert.equal(created.status, 200)
+  const id = (await created.json()).bookingId as string
+  const send = (u: U | null, body: unknown) => { as(u); return routes.messages.POST(R("/", "POST", body), ctx(id)) }
+
+  assert.equal((await send(null, { body: "hi" })).status, 401)
+  assert.equal((await send(other, { body: "hi" })).status, 403, "outsider cannot write")
+  as(other); assert.equal((await routes.messages.GET(R("/", "GET"), ctx(id))).status, 403, "outsider cannot read")
+  assert.equal((await send(fam, { body: "   " })).status, 400, "blank")
+  assert.equal((await send(fam, { body: "x".repeat(1001) })).status, 400, "too long")
+
+  assert.equal((await send(fam, { body: "Hello <b>Pandit</b>, can you bring a kalash?" })).status, 201)
+  assert.equal((await send(fam, { body: "Also what time will you arrive?" })).status, 201)
+  assert.equal(await prisma.notification.count({ where: { userId: p2.user.id, type: "NEW_MESSAGE" } }), 1, "one bell entry for an unread run")
+  await flush()
+  assert.equal(mailTo(p2.user.email, "New message").length, 1, "one email for an unread run")
+  assert.ok(!mailTo(p2.user.email, "New message")[0].html.includes("kalash"), "message text is not emailed")
+
+  as(p2.user)
+  const thread = await (await routes.messages.GET(R("/", "GET"), ctx(id))).json()
+  assert.equal(thread.messages.length, 2); assert.equal(thread.open, true)
+  assert.equal(thread.messages[0].senderId, fam.id)
+
+  assert.equal((await send(p2.user, { body: "Yes, I will bring it. Around 8:45." })).status, 201)
+  assert.equal(await prisma.notification.count({ where: { userId: fam.id, type: "NEW_MESSAGE" } }), 1, "family notified of the reply")
+  // once the family reads their bell entry, the next reply notifies again
+  await prisma.notification.updateMany({ where: { userId: fam.id }, data: { isRead: true } })
+  assert.equal((await send(p2.user, { body: "See you then." })).status, 201)
+  assert.equal(await prisma.notification.count({ where: { userId: fam.id, type: "NEW_MESSAGE" } }), 2)
+
+  // rate limit
+  await prisma.message.createMany({ data: Array.from({ length: 30 }, () => ({ bookingId: id, senderId: fam.id, body: "spam" })) })
+  assert.equal((await send(fam, { body: "one more" })).status, 429)
+
+  // closed booking: history readable, writing refused
+  as(fam); assert.equal((await routes.cancel.POST(R("/", "POST", {}), ctx(id))).status, 200)
+  const closed = await (await routes.messages.GET(R("/", "GET"), ctx(id))).json()
+  assert.equal(closed.open, false); assert.ok(closed.messages.length >= 4)
+  assert.equal((await send(fam, { body: "after cancel" })).status, 409)
+})
+
+test("priest calendar export (.ics) lists accepted bookings only, escaped", async () => {
+  as(p2.user)
+  const empty = await (await routes.ics.GET()).text()
+  assert.ok(empty.startsWith("BEGIN:VCALENDAR") && !empty.includes("BEGIN:VEVENT"))
+  const accepted = await prisma.booking.findFirstOrThrow({ where: { priestId: p2.id, scheduledTime: "18:00" } })
+  assert.equal((await routes.confirm.POST(R("/", "POST", { action: "accept" }), ctx(accepted.id))).status, 200)
+  const res = await routes.ics.GET()
+  assert.match(res.headers.get("content-type"), /text\/calendar/)
+  const ics = await res.text()
+  assert.equal(ics.match(/BEGIN:VEVENT/g)?.length, 1, "pending bookings are not exported")
+  assert.ok(ics.includes(`DTSTART:${day(20).replace(/-/g, "")}T180000`))
+  assert.ok(ics.includes("Griha Pravesh") && ics.includes("LOCATION:12 Temple Street\\, Chennai 600001"))
+  as(family); assert.equal((await routes.ics.GET()).status, 404, "non-priest has no calendar")
+  as(null); assert.equal((await routes.ics.GET()).status, 401)
 })

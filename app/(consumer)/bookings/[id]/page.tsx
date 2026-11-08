@@ -5,6 +5,7 @@ import { MapPin, Phone, Star } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { BookingChat } from "@/components/shared/booking-chat"
 import { CancelBookingButton, RescheduleForm } from "@/components/consumer/booking-actions"
 import { CEREMONIES, CITIES } from "@/lib/constants"
 import { addDays, todayIST } from "@/lib/dates"
@@ -74,6 +75,7 @@ export default async function BookingDetailPage({ params }: { params: Promise<{ 
           )}
           {!live && <Button size="sm" variant="outline" asChild><Link href={`/book?priestId=${b.priestId}&ceremony=${b.ceremony.type}`}>Book again</Link></Button>}
         </div>
+        <BookingChat bookingId={b.id} meId={user.id} />
         {b.rescheduleCount > 0 && live && <p className="text-xs text-muted-foreground">Rescheduled {b.rescheduleCount} of 2 allowed times.</p>}
       </div>
     </div>

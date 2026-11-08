@@ -77,6 +77,7 @@ export function CalendarView({
   return (
     <div className="space-y-6 max-w-4xl">
       <h1 className="text-2xl font-semibold tracking-tight">Calendar</h1>
+      <a href="/api/priests/calendar" className="text-xs text-primary underline">Download accepted bookings (.ics) for Google or Apple Calendar</a>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <Card className="border-border/60 shadow-none lg:col-span-2">

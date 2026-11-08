@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { FlameBadge } from "@/components/shared/flame-badge"
+import { AvailabilityStrip } from "@/components/consumer/availability-strip"
 import { TRADITIONS, LANGUAGES, CEREMONIES, CITIES } from "@/lib/constants"
 import { formatINR } from "@/lib/utils/booking"
 import { prisma } from "@/lib/prisma"
@@ -146,6 +147,10 @@ export default async function PriestProfilePage({
                 <p className="text-sm text-muted-foreground leading-relaxed">{priest.bio}</p>
               </div>
             )}
+
+            <Separator />
+
+            <AvailabilityStrip priestId={priest.id} />
 
             <Separator />
 

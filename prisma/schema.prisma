@@ -304,6 +304,7 @@ model Booking {
   completedAt DateTime? @map("completed_at")
 
   review Review?
+  messages Message[]
 
   @@index([priestId, scheduledDate])
   @@index([consumerId])
@@ -347,4 +348,16 @@ model Notification {
 enum Gender {
   MALE
   FEMALE
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  bookingId String   @map("booking_id")
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  senderId  String   @map("sender_id")
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([bookingId, createdAt])
+  @@map("messages")
 }

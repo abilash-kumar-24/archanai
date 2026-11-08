@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import { PriestCard } from "@/components/consumer/priest-card"
-import { dayAvailable } from "@/lib/booking/availability"
+import { bookedKey, dayAvailable } from "@/lib/booking/availability"
 import { parseDateOnly, todayIST } from "@/lib/dates"
 import type { City, CeremonyType, Tradition, Language } from "@/types"
 
@@ -80,17 +80,16 @@ export async function PriestGrid({ filters }: PriestGridProps) {
       prisma.blockedDate.findMany({ where: { priestId: { in: ids }, date: dayDate }, select: { priestId: true } }),
       prisma.booking.findMany({
         where: { priestId: { in: ids }, scheduledDate: dayDate, status: { in: ["PENDING", "CONFIRMED", "PRIEST_ACCEPTED"] } },
-        select: { priestId: true },
+        select: { priestId: true, scheduledTime: true },
       }),
     ])
     const blockedIds = new Set(blocked.map((b) => b.priestId))
-    const bookedIds = new Set(booked.map((b) => b.priestId))
     shown = priests.filter((p) =>
       dayAvailable({
         day, today: todayIST(),
         windows: windows.filter((w) => w.priestId === p.id).map((w) => ({ dayOfWeek: w.dayOfWeek, startTime: w.startTime, endTime: w.endTime })),
         blocked: blockedIds.has(p.id) ? new Set([day]) : new Set(),
-        booked: bookedIds.has(p.id) ? new Set([day]) : new Set(),
+        booked: new Set(booked.filter((b) => b.priestId === p.id).map((b) => bookedKey(day, b.scheduledTime))),
       })
     )
   }

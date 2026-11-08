@@ -183,3 +183,13 @@ export async function sendSamagriChecklist(
      <table cellpadding="6" border="1" style="border-collapse:collapse"><tr><th>Item</th><th>Quantity</th><th>Notes</th></tr>${rows}</table>`
   )
 }
+
+export async function sendNewMessage(email: string, data: { name: string; from: string; bookingRef: string; path: string }) {
+  return mail(
+    email,
+    `New message — ${data.bookingRef}`,
+    `<p>Namaste ${esc(data.name)},</p>
+     <p>${esc(data.from)} sent you a message about booking <strong>${esc(data.bookingRef)}</strong>.</p>
+     <p><a href="${link(data.path)}">Read and reply</a></p>`
+  )
+}
