@@ -58,7 +58,7 @@ export interface BookingPriest {
   id:            string
   displayName:   string
   tradition:     Tradition
-  offerings:     { type: CeremonyType; price: number; samagriIncluded: boolean }[]
+  offerings:     { type: CeremonyType; price: number; samagriIncluded: boolean; notes?: string }[]
   serviceCities: City[]
   rating:        number
   reviewCount:   number
@@ -256,7 +256,7 @@ export function BookingWizard({ priest, initialCeremony, prefill }: BookingWizar
             <div className="space-y-4">
               <h2 className="font-semibold">Which ceremony are you booking?</h2>
               <div className="grid sm:grid-cols-2 gap-3">
-                {priest.offerings.map(({ type, price }) => {
+                {priest.offerings.map(({ type, price, notes }) => {
                   const c = CEREMONIES[type]
                   return (
                     <button
@@ -276,6 +276,7 @@ export function BookingWizard({ priest, initialCeremony, prefill }: BookingWizar
                         <p className="text-xs text-muted-foreground mt-1">
                           {formatINR(price)}
                         </p>
+                        {notes && <p className="text-xs text-primary mt-1">Priest&apos;s note: {notes}</p>}
                       </div>
                       {selectedCeremony === type && (
                         <Check className="h-4 w-4 text-primary ml-auto shrink-0 mt-0.5" />

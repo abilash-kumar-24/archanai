@@ -63,6 +63,7 @@ export function PriestCard({ priest }: PriestCardProps) {
               <span className="text-xs text-muted-foreground">({priest.reviewCount} reviews)</span>
               <span className="text-muted-foreground">·</span>
               <span className="font-mono tabular text-xs text-muted-foreground">{priest.experienceYears}y exp</span>
+              {priest.travelsOutsideCity && <span className="text-xs text-muted-foreground">· travels</span>}
             </div>
 
             {/* Languages */}

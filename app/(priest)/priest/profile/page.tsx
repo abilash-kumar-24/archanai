@@ -19,7 +19,7 @@ const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 const DOC_KINDS = { ID_PROOF: "ID proof", CERTIFICATE: "Training certificate", TEMPLE_LETTER: "Temple letter", OTHER: "Other" } as const
 type DocKind = keyof typeof DOC_KINDS
 
-type Offering = { price: string; samagriIncluded: boolean }
+type Offering = { price: string; samagriIncluded: boolean; notes: string }
 type Day = { on: boolean; start: string; end: string }
 type Doc = { id: string; kind: DocKind; fileName: string }
 
@@ -28,6 +28,8 @@ const emptyWeek = (): Day[] => DAYS.map(() => ({ on: true, start: "06:00", end: 
 export default function PriestProfilePage() {
   const [form, setForm] = useState({ displayName: "", bio: "", experienceYears: "", phone: "", templeAffiliation: "" })
   const [tradition, setTradition] = useState<Tradition>("IYER_SMARTHA")
+  const [gender, setGender] = useState<"MALE" | "FEMALE" | "">("")
+  const [travels, setTravels] = useState(false)
   const [languages, setLanguages] = useState<Language[]>([])
   const [cities, setCities] = useState<City[]>([])
   const [offerings, setOfferings] = useState<Partial<Record<CeremonyType, Offering>>>({})
@@ -52,15 +54,17 @@ export default function PriestProfilePage() {
           phone: phone ?? "", templeAffiliation: p.templeAffiliation ?? "",
         })
         setTradition(p.tradition)
+        setGender(p.gender ?? "")
+        setTravels(!!p.travelsOutsideCity)
         setLanguages(p.languages)
         setCities(p.serviceCities)
         setPhotoUrl(p.photoUrl)
         setStatus(p.verificationStatus)
         setDocs(p.documents)
         const o: Partial<Record<CeremonyType, Offering>> = {}
-        for (const x of p.ceremonyOfferings) o[x.ceremonyType as CeremonyType] = { price: String(x.price), samagriIncluded: x.samagriIncluded }
+        for (const x of p.ceremonyOfferings) o[x.ceremonyType as CeremonyType] = { price: String(x.price), samagriIncluded: x.samagriIncluded, notes: x.notes ?? "" }
         // Legacy priests without per-ceremony rows start from their old minimum.
-        if (!p.ceremonyOfferings.length) for (const c of p.ceremonies) o[c as CeremonyType] = { price: String(p.priceRangeMin), samagriIncluded: false }
+        if (!p.ceremonyOfferings.length) for (const c of p.ceremonies) o[c as CeremonyType] = { price: String(p.priceRangeMin), samagriIncluded: false, notes: "" }
         setOfferings(o)
         if (p.availability.length) {
           const w = DAYS.map(() => ({ on: false, start: "06:00", end: "20:00" }))
@@ -97,8 +101,9 @@ export default function PriestProfilePage() {
         body: JSON.stringify({
           displayName: form.displayName.trim(), bio: form.bio.trim(), experienceYears: Number(form.experienceYears) || 1,
           phone: form.phone, tradition, languages, cities,
+          gender: gender || null, travelsOutsideCity: travels,
           templeAffiliation: form.templeAffiliation.trim() || undefined,
-          offerings: chosen.map((c) => ({ type: c, price: Number(offerings[c]!.price), samagriIncluded: offerings[c]!.samagriIncluded })),
+          offerings: chosen.map((c) => ({ type: c, price: Number(offerings[c]!.price), samagriIncluded: offerings[c]!.samagriIncluded, notes: offerings[c]!.notes.trim() || undefined })),
           availability: week.flatMap((d, i) => (d.on ? [{ dayOfWeek: i, startTime: d.start, endTime: d.end }] : [])),
         }),
       })
@@ -192,6 +197,14 @@ export default function PriestProfilePage() {
           <div><Label>Years of experience *</Label><Input className="mt-1" type="number" min={1} max={70} {...field("experienceYears")} /></div>
           <div className="sm:col-span-2"><Label>Bio *</Label><Textarea className="mt-1 resize-none" rows={4} {...field("bio")} /></div>
           <div><Label>Temple / Math affiliation</Label><Input className="mt-1" {...field("templeAffiliation")} /></div>
+          <div><Label>Gender (optional)</Label>
+            <select className="mt-1 h-9 w-full rounded-md border border-border bg-background px-2 text-sm" value={gender} onChange={(e) => setGender(e.target.value as typeof gender)}>
+              <option value="">Prefer not to say</option><option value="MALE">Male</option><option value="FEMALE">Female</option>
+            </select>
+          </div>
+          <label className="sm:col-span-2 flex items-center gap-2 text-sm cursor-pointer">
+            <Checkbox checked={travels} onCheckedChange={(v) => setTravels(v === true)} /> I am willing to travel outside my city for ceremonies
+          </label>
         </CardContent>
       </Card>
 
@@ -236,7 +249,7 @@ export default function PriestProfilePage() {
                 <label className="flex items-center gap-2 flex-1 min-w-40 text-sm cursor-pointer">
                   <Checkbox checked={!!o} onCheckedChange={(v) => setOfferings((p) => {
                     const n = { ...p }
-                    if (v === true) n[c] = { price: "", samagriIncluded: false }; else delete n[c]
+                    if (v === true) n[c] = { price: "", samagriIncluded: false, notes: "" }; else delete n[c]
                     return n
                   })} />
                   {CEREMONIES[c].emoji} {CEREMONIES[c].label}
@@ -249,6 +262,8 @@ export default function PriestProfilePage() {
                     <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Checkbox checked={o.samagriIncluded} onCheckedChange={(v) => setOfferings((p) => ({ ...p, [c]: { ...o, samagriIncluded: v === true } }))} /> Samagri included
                     </label>
+                    <Input className="basis-full text-xs" maxLength={300} placeholder="Note for families, e.g. needs 2 days notice, bring your own idol" value={o.notes}
+                      onChange={(e) => setOfferings((p) => ({ ...p, [c]: { ...o, notes: e.target.value } }))} />
                   </>
                 )}
               </div>

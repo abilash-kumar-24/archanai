@@ -44,14 +44,15 @@ export default async function PriestProfilePage({
         ceremoniesCount:  true,
         priceRangeMin:    true,
         priceRangeMax:    true,
-        travelFeePerKm:   true,
+        travelsOutsideCity: true,
+        gender:           true,
         templeAffiliation:true,
         identityVerified:  true,
         foundingPriest:   true,
         rating:           true,
         reviewCount:      true,
         verificationStatus: true,
-        ceremonyOfferings: { select: { ceremonyType: true, price: true, samagriIncluded: true } },
+        ceremonyOfferings: { select: { ceremonyType: true, price: true, samagriIncluded: true, notes: true } },
       },
     }),
     prisma.review.findMany({
@@ -118,6 +119,9 @@ export default async function PriestProfilePage({
                     🛕 {priest.templeAffiliation}
                   </p>
                 )}
+                {priest.travelsOutsideCity && (
+                  <p className="text-xs text-muted-foreground mt-0.5">🚗 Willing to travel outside {CITIES[priest.serviceCities[0] as City]?.label ?? "city"}</p>
+                )}
                 <div className="flex flex-wrap items-center gap-3 mt-3">
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 fill-primary text-primary" />
@@ -160,6 +164,7 @@ export default async function PriestProfilePage({
                         <p className="font-mono tabular text-xs text-muted-foreground">
                           {offer ? `${formatINR(offer.price)}${offer.samagriIncluded ? " incl. samagri" : ""}` : "Price on request"}
                         </p>
+                        {offer?.notes && <p className="text-xs text-muted-foreground mt-1">{offer.notes}</p>}
                       </div>
                     </div>
                   )

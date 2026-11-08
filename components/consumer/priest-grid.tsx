@@ -14,6 +14,10 @@ interface PriestGridProps {
     maxPrice?:  string
     sort?:      string
     date?:      string
+    minExp?:    string
+    gender?:    string
+    samagri?:   string
+    travel?:    string
   }
 }
 
@@ -28,6 +32,12 @@ export async function PriestGrid({ filters }: PriestGridProps) {
   if (filters.tradition) where.tradition     = filters.tradition as Tradition
   if (filters.language)  where.languages     = { has: filters.language as Language }
   if (filters.minRating) where.rating        = { gte: parseFloat(filters.minRating) }
+  if (filters.minExp)    where.experienceYears = { gte: parseInt(filters.minExp, 10) || 0 }
+  if (filters.gender === "MALE" || filters.gender === "FEMALE") where.gender = filters.gender
+  if (filters.travel === "1") where.travelsOutsideCity = true
+  if (filters.samagri === "1") {
+    where.ceremonyOfferings = { some: { samagriIncluded: true, ...(filters.ceremony ? { ceremonyType: filters.ceremony as CeremonyType } : {}) } }
+  }
   if (filters.maxPrice)  where.priceRangeMin = { lte: parseInt(filters.maxPrice, 10) }
 
   const priests = await prisma.priest.findMany({
@@ -49,6 +59,8 @@ export async function PriestGrid({ filters }: PriestGridProps) {
       foundingPriest:   true,
       rating:           true,
       reviewCount:      true,
+      gender:           true,
+      travelsOutsideCity: true,
     },
     orderBy:
       filters.sort === "price_asc"  ? [{ priceRangeMin: "asc" }] :

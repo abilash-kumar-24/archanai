@@ -119,6 +119,9 @@ model Priest {
   ceremonies    CeremonyType[]
   serviceCities City[]         @map("service_cities")
 
+  gender             Gender?
+  travelsOutsideCity Boolean @default(false) @map("travels_outside_city")
+
   experienceYears  Int @map("experience_years")
   ceremoniesCount  Int @default(0) @map("ceremonies_count")
 
@@ -339,4 +342,9 @@ model Notification {
 
   @@index([userId, isRead, sentAt])
   @@map("notifications")
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }

@@ -35,6 +35,8 @@ export async function POST(req: Request) {
           displayName:       d.displayName,
           bio:               d.bio,
           experienceYears:   d.experienceYears,
+          gender:            d.gender ?? null,
+          travelsOutsideCity: d.travelsOutsideCity,
           tradition:         d.tradition,
           languages:         d.languages,
           serviceCities:     d.cities,

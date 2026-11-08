@@ -27,7 +27,7 @@ export default async function BookPage({
       select: {
         id: true, displayName: true, tradition: true, rating: true, reviewCount: true,
         serviceCities: true, ceremonies: true, priceRangeMin: true,
-        ceremonyOfferings: { select: { ceremonyType: true, price: true, samagriIncluded: true } },
+        ceremonyOfferings: { select: { ceremonyType: true, price: true, samagriIncluded: true, notes: true } },
       },
     }),
     // Saves families retyping everything for a second ceremony.
@@ -36,7 +36,7 @@ export default async function BookPage({
   if (!priest) redirect("/browse")
 
   const offerings = priest.ceremonyOfferings.length
-    ? priest.ceremonyOfferings.map((o) => ({ type: o.ceremonyType as CeremonyType, price: o.price, samagriIncluded: o.samagriIncluded }))
+    ? priest.ceremonyOfferings.map((o) => ({ type: o.ceremonyType as CeremonyType, price: o.price, samagriIncluded: o.samagriIncluded, notes: o.notes ?? undefined }))
     : priest.ceremonies.map((c) => ({ type: c as CeremonyType, price: priest.priceRangeMin, samagriIncluded: false })) // legacy rows
 
   const fam = (last?.familyDetails ?? {}) as NonNullable<BookingPrefill["family"]>

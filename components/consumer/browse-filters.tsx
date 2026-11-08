@@ -62,7 +62,11 @@ function FilterPanel({
   const maxPrice = searchParams.get("maxPrice")
   const sort     = searchParams.get("sort")
   const date     = searchParams.get("date")
-  const hasFilters = city || ceremony || tradition || language || minRating || maxPrice || sort || date
+  const minExp   = searchParams.get("minExp")
+  const gender   = searchParams.get("gender")
+  const samagri  = searchParams.get("samagri")
+  const travel   = searchParams.get("travel")
+  const hasFilters = minExp || gender || samagri || travel || city || ceremony || tradition || language || minRating || maxPrice || sort || date
 
   return (
     <div className="space-y-6">
@@ -123,6 +127,26 @@ function FilterPanel({
           <option value="10000">Up to 10,000</option>
         </select>
       </div>
+
+      {/* Priest preferences */}
+      <div className="space-y-3">
+        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground block">Experience</Label>
+        <select className="w-full h-8 rounded-md border border-border bg-background px-2 text-sm" value={minExp ?? ""} onChange={(e) => updateFilter("minExp", e.target.value || null)}>
+          <option value="">Any</option><option value="5">5+ years</option><option value="10">10+ years</option><option value="20">20+ years</option>
+        </select>
+        <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground block pt-1">Priest gender</Label>
+        <select className="w-full h-8 rounded-md border border-border bg-background px-2 text-sm" value={gender ?? ""} onChange={(e) => updateFilter("gender", e.target.value || null)}>
+          <option value="">No preference</option><option value="MALE">Male</option><option value="FEMALE">Female</option>
+        </select>
+        <label className="flex items-center gap-2 text-sm cursor-pointer pt-1">
+          <input type="checkbox" checked={samagri === "1"} onChange={(e) => updateFilter("samagri", e.target.checked ? "1" : null)} /> Samagri included
+        </label>
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" checked={travel === "1"} onChange={(e) => updateFilter("travel", e.target.checked ? "1" : null)} /> Travels outside city
+        </label>
+      </div>
+
+      <Separator />
 
       {/* City */}
       <div>

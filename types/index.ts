@@ -61,6 +61,8 @@ export interface PriestProfile {
   priceRangeMin: number
   priceRangeMax: number
   travelFeePerKm: number
+  gender?: "MALE" | "FEMALE" | null
+  travelsOutsideCity?: boolean
   templeAffiliation?: string
   identityVerified: boolean
   verificationStatus: VerificationStatus

@@ -13,6 +13,10 @@ interface BrowsePageProps {
     minRating?: string
     maxPrice?: string
     sort?: string
+    minExp?: string
+    gender?: string
+    samagri?: string
+    travel?: string
   }>
 }
 

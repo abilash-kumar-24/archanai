@@ -47,6 +47,8 @@ export default function PriestRegisterPage() {
   const [prices, setPrices]         = useState<Record<string, string>>({})
   const [samagri, setSamagri]         = useState<Record<string, boolean>>({})
   const [agreed, setAgreed]           = useState(false)
+  const [gender, setGender]           = useState<"MALE" | "FEMALE" | "">("")
+  const [travels, setTravels]         = useState(false)
   const pricesValid = ceremonies.every((c) => Number(prices[c]) >= 100)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -93,6 +95,8 @@ export default function PriestRegisterPage() {
           languages,
           cities,
           phone:             step1Data.phone,
+          gender:            gender || null,
+          travelsOutsideCity: travels,
           offerings:         ceremonies.map((c) => ({ type: c, price: Number(prices[c]), samagriIncluded: !!samagri[c] })),
           templeAffiliation: step3Data.templeAffiliation || undefined,
         }),
@@ -292,6 +296,18 @@ export default function PriestRegisterPage() {
                 <div>
                   <Label className="text-sm">Temple / Math affiliation</Label>
                   <Input className="mt-1" placeholder="e.g. Kapaleeshwarar Temple" {...form3.register("templeAffiliation")} />
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-sm">Gender (optional)</Label>
+                    <select className="mt-1 h-9 w-full rounded-md border border-border bg-background px-2 text-sm" value={gender} onChange={(e) => setGender(e.target.value as typeof gender)}>
+                      <option value="">Prefer not to say</option><option value="MALE">Male</option><option value="FEMALE">Female</option>
+                    </select>
+                  </div>
+                  <label className="flex items-center gap-2 text-sm cursor-pointer sm:pt-6">
+                    <Checkbox checked={travels} onCheckedChange={(v) => setTravels(v === true)} /> Willing to travel outside my city
+                  </label>
                 </div>
 
                 <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">

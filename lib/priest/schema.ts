@@ -22,6 +22,8 @@ export const priestProfileSchema = z.object({
   displayName:       z.string().min(3).max(80),
   bio:               z.string().min(20).max(2000),
   experienceYears:   z.number().int().min(1).max(70),
+  gender:            z.enum(["MALE", "FEMALE"]).nullish(),
+  travelsOutsideCity: z.boolean().default(false),
   tradition:         z.enum(keys<Tradition>(TRADITIONS)),
   languages:         z.array(z.enum(keys<Language>(LANGUAGES))).min(1),
   cities:            z.array(z.enum(keys<City>(CITIES))).min(1),
