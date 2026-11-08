@@ -274,7 +274,7 @@ export function BookingWizard({ priest, initialCeremony, prefill }: BookingWizar
                         <p className="font-medium text-sm">{c.label}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{c.description}</p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {Math.round(c.durationMin / 60)}–{Math.round(c.durationMax / 60)} hours · {formatINR(price)}
+                          {formatINR(price)}
                         </p>
                       </div>
                       {selectedCeremony === type && (

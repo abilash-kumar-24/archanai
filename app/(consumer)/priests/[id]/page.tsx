@@ -158,8 +158,7 @@ export default async function PriestProfilePage({
                       <div>
                         <p className="text-sm font-medium">{ceremony.label}</p>
                         <p className="font-mono tabular text-xs text-muted-foreground">
-                          {Math.round(ceremony.durationMin / 60)}–{Math.round(ceremony.durationMax / 60)} hours
-                          {offer && ` · ${formatINR(offer.price)}${offer.samagriIncluded ? " incl. samagri" : ""}`}
+                          {offer ? `${formatINR(offer.price)}${offer.samagriIncluded ? " incl. samagri" : ""}` : "Price on request"}
                         </p>
                       </div>
                     </div>

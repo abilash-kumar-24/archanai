@@ -104,9 +104,6 @@ export default async function HomePage() {
                     <span className="text-sm font-medium leading-snug group-hover:text-primary transition-colors">
                       {c.label}
                     </span>
-                    <span className="font-mono tabular text-xs text-muted-foreground">
-                      {Math.round(c.durationMin / 60)}–{Math.round(c.durationMax / 60)}h
-                    </span>
                   </Link>
                 </Reveal>
               )
