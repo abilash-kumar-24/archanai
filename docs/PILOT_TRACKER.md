@@ -72,7 +72,10 @@ Migrations 0001→0004 are applied to the live database. Items marked `[~]` are 
 - [~] F2 Booking detail page with map link, contact reveal, reschedule, cancel, review, book again
 - [~] F3 Wizard prefilled from last booking; Google Maps link field; fake "parking" input removed
 - [~] F4 "Available on" date filter + sort + rating/price filters
-- [~] F7 Experience, gender, samagri-included and travels-outside-city filters (migration 0005, applied)
+- [~] F7 Experience, gender, samagri-included and travels-outside-city filters (migration 0005, applied; 0006 adds day-parts and chat, applied)
+- [~] F9 Public availability strip (next 3 weeks) on the priest page; booking is per day-part (morning/afternoon/evening), so one priest can take up to three ceremonies a day
+- [~] F10 Chat per booking (family and priest), in-app bell plus a single email per unread run; priest booking page `/priest/bookings/[id]`
+- [~] F11 Priest calendar export (.ics)
 - [~] F8 Per-ceremony priest notes shown on priest page and in the booking wizard; ceremony durations no longer shown
 - [~] F5 Save/favourite priests, `/favorites`
 - [~] F6 Book again

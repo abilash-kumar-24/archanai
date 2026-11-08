@@ -10,6 +10,8 @@ Archanai helps families in South India find and book a verified priest for home 
 - **Ceremonies:** Griha Pravesh, Satyanarayan Puja, Namakarana, Upanayanam, Seemantham / Valaikappu, Annaprashana.
 - **Booking request:** the family picks a ceremony, a date and time the priest is free, an address and family details. The priest accepts or declines.
 - **After acceptance:** phone numbers are shared both ways and the family gets a samagri checklist by email.
+- **Chat:** family and priest can message each other on each booking.
+- **Availability:** each priest page shows the next 3 weeks. A priest can take one ceremony per part of the day (morning, afternoon, evening).
 - **Manage:** reschedule (twice at most), cancel, review after the ceremony, save favourite priests, in-app bell and email notifications.
 - **Priest side:** profile, per-ceremony price and note, weekly hours, blocked dates, dashboard, earnings log.
 - **Sign in:** email link, no password. Check spam if the email is slow.
@@ -17,9 +19,9 @@ Archanai helps families in South India find and book a verified priest for home 
 ## Families: what to try
 1. Sign in, then browse `/browse`. Try several filters.
 2. Open a priest and read their ceremonies, prices and notes.
-3. Book a ceremony at least 1 day ahead.
+3. Check the availability strip, then book a ceremony at least 1 day ahead.
 4. Check the "request sent" email and the booking page.
-5. After the priest accepts, check you can see their phone and received the samagri checklist.
+5. Send the priest a message in the booking chat. After they accept, check you can see their phone and received the samagri checklist.
 6. Try reschedule and cancel on a spare booking.
 7. After the ceremony, leave a review. Save a priest as a favourite.
 
@@ -28,11 +30,11 @@ Archanai helps families in South India find and book a verified priest for home 
 ## Priests: what to try
 1. Register at `/priest/register` (2–3 minutes). Verification is a phone call from the team.
 2. Complete the profile: photo, languages, cities, price and a note for each ceremony, weekly hours. Documents are optional.
-3. Once approved, check the dashboard. Accept or decline a request, and mark a ceremony complete with the amount you received.
+3. Once approved, check the dashboard. Open a request to chat with the family, accept or decline it, and mark a ceremony complete with the amount you received.
 4. Block a date on the calendar and confirm families cannot book it.
-5. Check the earnings page.
+5. Check the earnings page, and download your accepted bookings as a calendar file (.ics) from the Calendar page.
 
-**Tell us:** Was registration clear? Is anything missing from the profile? Do you get requests in time? Is the one-booking-per-day limit right for you? Were the emails and phone numbers correct? Would you take real bookings this way?
+**Tell us:** Was registration clear? Is anything missing from the profile? Do you get requests in time? Is one ceremony per part of the day (morning, afternoon, evening) right for you? Were the emails and phone numbers correct? Would you take real bookings this way?
 
 ## What we are evaluating
 | Question | Signal |
@@ -44,4 +46,4 @@ Archanai helps families in South India find and book a verified priest for home 
 | What is missing? | Repeated feature asks |
 
 ## Known pilot limits
-English only. Email and in-app alerts only (no WhatsApp or SMS). No online payment. Emails may land in spam. Requests unanswered for 48 hours expire automatically. Please report any bug with a screenshot and what you clicked.
+English only. Email and in-app alerts only (no WhatsApp or SMS). Chat refreshes every few seconds rather than instantly. No online payment. Emails may land in spam. Requests unanswered for 48 hours expire automatically. Please report any bug with a screenshot and what you clicked.

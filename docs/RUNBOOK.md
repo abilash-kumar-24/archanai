@@ -15,7 +15,7 @@ Next.js 16 (App Router, `proxy.ts` instead of middleware) · React 19 · Prisma 
 | `CRON_SECRET` | Vercel | any long random string. Without it both cron routes return 403 |
 
 ## Database
-- Migrations live in `prisma/migrations`. Apply with `npx prisma migrate deploy` (0001-0005 are applied in production) (never `migrate dev` against production: `0004` contains a partial unique index Prisma cannot model, so `dev` would try to drop it).
+- Migrations live in `prisma/migrations`. Apply with `npx prisma migrate deploy` (0001-0006 are applied in production) (never `migrate dev` against production: `0004` contains a partial unique index Prisma cannot model, so `dev` would try to drop it).
 - The production DB predates `_prisma_migrations`. Baseline once: `npx prisma migrate resolve --applied 0001_init`, then `0002_rename_identity_verified`, `0003_remove_payment_gateway`, then `npx prisma migrate deploy` applies `0004_pilot_readiness`.
 - Seed reference data (ceremonies, samagri) with `npm run seed`. It is idempotent for ceremonies; check `prisma/seed.ts` before re-running on a populated DB.
 
@@ -32,15 +32,20 @@ Next.js 16 (App Router, `proxy.ts` instead of middleware) · React 19 · Prisma 
 - `/api/cron/expire` 04:00 UTC: releases PENDING requests unanswered for 48h (or past their date) and tells the family.
 
 ## Booking rules (enforced server-side)
-Request must be ≥1 day ahead (IST) and ≤365 days; inside the priest's weekly hours; not on a blocked date; and a priest has at most one live booking per day (database partial unique index). A family may hold 5 pending requests; reschedule at most twice.
+Request must be ≥1 day ahead (IST) and ≤365 days; inside the priest's weekly hours; not on a blocked date; and a priest has at most one live booking per day-part (morning before 12:00, afternoon before 17:00, evening), enforced by a database expression index. A day closes only when every part the priest works is taken. A family may hold 5 pending requests; reschedule at most twice.
 
 ## Priest attributes and browse filters
 Priest profile stores tradition, languages, cities, years of experience, optional gender, "travels outside city", per-ceremony price, "samagri included" and a short per-ceremony note. Browse filters: city, ceremony, tradition, language, available-on date, min rating, max price, min experience (5/10/20), gender, samagri included, travels outside city; sort by rating, price, experience. Ceremony durations are deliberately not shown (they vary by priest and family).
 
+## Chat and calendar export
+- Chat: one thread per booking between the family and the priest (`/bookings/[id]` and `/priest/bookings/[id]`, API `/api/bookings/[id]/messages`). Participants only; 1000 characters; 30 messages per hour per user; read-only once a booking is cancelled or a no-show. Polling every 8 seconds, no websockets. One bell entry and one email per unread run; the email never contains the message text.
+- Priests can download accepted bookings as `.ics` from the Calendar page (`/api/priests/calendar`). It is a one-off export, not a live subscription; events are 2 hours long by default.
+- The public priest page shows the next 3 weeks of availability.
+
 ## Checks before each deploy
 `npx tsc --noEmit && npx eslint . && npm test && npm run test:api && npm run build`
 
-`npm test` = fast unit tests (dates, availability, email escaping). `npm run test:api` runs the real API route handlers through the whole priest and family journey (register, approve, book, accept, reschedule, complete, review, cancel, expiry cron, pause) against an in-memory Postgres built from the real migrations; Supabase session/storage and the SMTP transport are mocked, and it asserts which emails are sent.
+`npm test` = fast unit tests (dates, availability, email escaping). `npm run test:api` runs the real API route handlers through the whole priest and family journey (register, approve, book, accept, reschedule, complete, review, cancel, expiry cron, pause, day-part booking, chat, calendar export) against an in-memory Postgres built from the real migrations; Supabase session/storage and the SMTP transport are mocked, and it asserts which emails are sent.
 
 Emails and notifications: in-app notifications are awaited; emails run via `after()` (`lib/background.ts`) so Vercel keeps the invocation alive until they are sent.
 
