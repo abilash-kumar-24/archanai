@@ -15,7 +15,7 @@ Next.js 16 (App Router, `proxy.ts` instead of middleware) · React 19 · Prisma 
 | `CRON_SECRET` | Vercel | any long random string. Without it both cron routes return 403 |
 
 ## Database
-- Migrations live in `prisma/migrations`. Apply with `npx prisma migrate deploy` (never `migrate dev` against production: `0004` contains a partial unique index Prisma cannot model, so `dev` would try to drop it).
+- Migrations live in `prisma/migrations`. Apply with `npx prisma migrate deploy` (0001-0005 are applied in production) (never `migrate dev` against production: `0004` contains a partial unique index Prisma cannot model, so `dev` would try to drop it).
 - The production DB predates `_prisma_migrations`. Baseline once: `npx prisma migrate resolve --applied 0001_init`, then `0002_rename_identity_verified`, `0003_remove_payment_gateway`, then `npx prisma migrate deploy` applies `0004_pilot_readiness`.
 - Seed reference data (ceremonies, samagri) with `npm run seed`. It is idempotent for ceremonies; check `prisma/seed.ts` before re-running on a populated DB.
 
@@ -33,6 +33,9 @@ Next.js 16 (App Router, `proxy.ts` instead of middleware) · React 19 · Prisma 
 
 ## Booking rules (enforced server-side)
 Request must be ≥1 day ahead (IST) and ≤365 days; inside the priest's weekly hours; not on a blocked date; and a priest has at most one live booking per day (database partial unique index). A family may hold 5 pending requests; reschedule at most twice.
+
+## Priest attributes and browse filters
+Priest profile stores tradition, languages, cities, years of experience, optional gender, "travels outside city", per-ceremony price, "samagri included" and a short per-ceremony note. Browse filters: city, ceremony, tradition, language, available-on date, min rating, max price, min experience (5/10/20), gender, samagri included, travels outside city; sort by rating, price, experience. Ceremony durations are deliberately not shown (they vary by priest and family).
 
 ## Checks before each deploy
 `npx tsc --noEmit && npx eslint . && npm test && npm run test:api && npm run build`

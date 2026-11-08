@@ -14,7 +14,7 @@ Migrations 0001→0004 are applied to the live database. Items marked `[~]` are 
 - [x] A3 Empty-string phone bug (code + data)
 - [x] A4 Baseline `_prisma_migrations` and 0004 applied by the owner ("all migrations successful")
 - [x] A5 Email provider: switched to Brevo SMTP (works without a domain, sender `gigarthub.team@gmail.com`; a test mail was delivered); Supabase auth emails use the same SMTP and are branded. Remaining caveat: Gmail sender ⇒ spam risk. Original note: Resend sending domain — Supabase SMTP and app email both send from `onboarding@resend.dev`, which only delivers to the Resend account owner. Magic-link login and all notification emails fail for real users until fixed
-- [ ] A6 Delete test accounts (`e2e-*@archanai-test.dev`) and the test priest before onboarding (your call)
+- [x] A6 Test accounts and test priest deleted
 - [ ] A7 Branded magic-link email (Supabase Auth → Email templates; current text is the default "Magic Link")
 
 ## B. Security and correctness
@@ -72,6 +72,8 @@ Migrations 0001→0004 are applied to the live database. Items marked `[~]` are 
 - [~] F2 Booking detail page with map link, contact reveal, reschedule, cancel, review, book again
 - [~] F3 Wizard prefilled from last booking; Google Maps link field; fake "parking" input removed
 - [~] F4 "Available on" date filter + sort + rating/price filters
+- [~] F7 Experience, gender, samagri-included and travels-outside-city filters (migration 0005, applied)
+- [~] F8 Per-ceremony priest notes shown on priest page and in the booking wizard; ceremony durations no longer shown
 - [~] F5 Save/favourite priests, `/favorites`
 - [~] F6 Book again
 
@@ -95,7 +97,6 @@ Google/phone login · WhatsApp/SMS (removed earlier on purpose) · map autocompl
 - All contact addresses are `gigarthub.team@gmail.com` (pilot, no domain). The unverified company name was removed from Terms and Privacy.
 
 ## Remaining human steps
-1. Sign in with `gigarthub.team@gmail.com`, then promote it to ADMIN (Supabase `app_metadata.role` + `users.role`).
+1. Admin: done (`gigarthub.team@gmail.com`). Test accounts and test priest: deleted.
 2. Manual pass with two real inboxes: sign in → register as priest → upload photo/doc → admin approves → book from another account → accept → reschedule → complete with amount → review → check bell and emails (and spam folder).
-3. Delete test accounts (`e2e-*@archanai-test.dev`) and the test priest (A6).
-4. Onboard real priests. Secret rotation (Brevo, Resend, Supabase token, `CRON_SECRET`) was deliberately skipped by the owner.
+3. Onboard real priests. Secret rotation (Brevo, Resend, Supabase token, `CRON_SECRET`) was deliberately skipped by the owner.
